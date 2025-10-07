@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>todo-app</title>
+  <link rel="stylesheet" href="./src/scss/styles.scss">
+</head>
+
+<body>
+  <div class="container">
+    <div class="card p-3">
+      <h1 class="text-center pb-3 head-font">To Do List</h1>
+
+      <div class="input-container">
+        <div class="row input-box py-3">
+          <div class="col-md-12">
+            <input type="text" id="taskInput" class="form-control" placeholder="Enter task">
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div>
+            <select id="preferenceInput" class="form-select">
+              <option value="" selected>Select Preference</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+
+        </div>
+
+
+        <div class="row g-2 align-items-center pt-3 addTask-container">
+          <div class="col-md-8">
+            <input type="text" class="form-control tags-input" placeholder="Enter tags...">
+          </div>
+
+          <div class="col-md-4 d-grid">
+            <button id="addBtn" class="btn primary-btn brown-btn">
+              Add Task
+            </button>
+          </div>
+        </div>
+
+
+        <div class="row py-3 g-2">
+          <div class="sort-box col-md-6">
+            <select id="sortInput" class="form-select">
+              <option value="" disabled selected>Sort By</option>
+
+              <option value="preference">Preference</option>
+            </select>
+          </div>
+          <div class="search-container col-md-6 d-flex">
+            <input type="search" class="form-control me-2" id="searchInput" placeholder="Search...">
+            <button class="btn btn-primary brown-btn">Search</button>
+          </div>
+        </div>
+      </div>
+
+
+      <ul id="taskList" class="list-group mt-4">
+      </ul>
+    </div>
+
+    <div class="alert-container">
+      <div class="alert-box d-flex justify-content-center align-items-center">
+        <div class="message"></div>
+      </div>
+    </div>
+
+    <div class="confirm-container">
+      <div class="confirm-box p-3 d-flex justify-content-center align-items-center">
+        <form>
+          <div class="confirm-msg-box p-3"></div>
+          <div class="confirm-btns-box d-flex justify-content-around">
+            <button type="button" class="btn primary-btn brown-btn yes-btn">Yes</button>
+            <button type="button" class="btn primary-btn brown-btn no-btn">No</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+
+</body>
+
+</html>
