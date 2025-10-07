@@ -1,10 +1,18 @@
 import { readFile, writeFile } from 'fs/promises'
 import path from 'path'
+import { stringify } from 'querystring';
 import { fileURLToPath } from 'url'
 
-const __filename = fileURLToPath(import.meta.url); //getting full path of current module.
-const __dirname = path.dirname(__filename)//extracting current module.
-const DB_PATH = path.join(__dirname, '../../database/db.json') //building path to JSON DB file.
+import * as yup from 'yup';
+let userSchema = yup.object({
+  taskInput: yup.string().required,
+  preferenceInput: yup.string().required,
+});
+
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename)
+const DB_PATH = path.join(__dirname, '../../database/db.json')
 
 
 async function readTask() {
@@ -18,7 +26,6 @@ async function readTask() {
   }
 }
 
-//writing values in tasks.
 async function writeTask(data) {
   try {
     if (!Array.isArray(data)) {
@@ -30,7 +37,6 @@ async function writeTask(data) {
   }
 }
 
-//fetching all tasks.
 const getAllTasks = async (req, res) => {
   try {
     const data = await readTask();

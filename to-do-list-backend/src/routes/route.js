@@ -8,7 +8,7 @@ import {
     updateSortedTasks
 } from '../controllers/controller.js';
 
-import { dataValidation } from '../middlewares/validator.js';
+import { dataValidation } from '../validators/validator.js';
 
 const todoRouter = express.Router();
 

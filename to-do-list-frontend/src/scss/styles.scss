@@ -71,7 +71,10 @@ body {
         padding: 5px;
         max-height: 400px;
         overflow-y: auto;
-
+        // overflow-x: hidden;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
 
         li {
             background: #F2F4F3;
@@ -249,6 +252,12 @@ body {
     .task-font {
         font-size: 19px;
     }
+
+    // #taskList {
+    //     li {
+    //         width: 40%;
+    //     }
+    // }
 }
 
 @media (min-width: 1200px) {

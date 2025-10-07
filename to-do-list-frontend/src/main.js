@@ -1,11 +1,8 @@
 
-// Import our custom CSS
 import "./scss/styles.scss";
 
-// Import all of Bootstrap’s JS
 import * as bootstrap from "bootstrap";
 
-//declaring btn, tasklist and predefined style for functional btns.
 const addBtn = document.querySelector("#addBtn");
 const taskList = document.querySelector("#taskList");
 const functionalBtns = `<div class="functional-btns">
@@ -100,10 +97,8 @@ function displayTask(tasks) {
     });
 }
 
-//🟢making the list buttons functional.(adding event listener)
 async function createFunctionalBtns() {
 
-    //🟢deleting task.
     ul.addEventListener("click", async (e) => {
         try {
             if (e.target.classList.contains("del-btn")) {
@@ -117,7 +112,6 @@ async function createFunctionalBtns() {
 
                     await deleteTask(deleteId);
 
-                    //displaying after deleting.
                     const tasks = await getTaskList();
                     displayTask(tasks);
                     showAlert("Task Deleted Successfully!", "success");
@@ -130,15 +124,14 @@ async function createFunctionalBtns() {
     });
 
 
-    //🟢task done
     ul.addEventListener("click", async (e) => {
         try {
             if (e.target.classList.contains("done-btn")) {
                 const listItem = e.target.closest("li");
                 const id = listItem.id;
 
-                await updateCompletionStatus(id);// save updates
-                const tasks = await getTaskList();//displaying data.
+                await updateCompletionStatus(id);
+                const tasks = await getTaskList();
                 displayTask(tasks);
             }
         }
@@ -148,7 +141,6 @@ async function createFunctionalBtns() {
     });
 
 
-    //🟢edit tasks
     ul.addEventListener("click", async (e) => {
         if (e.target.classList.contains("edit-btn")) {
             console.log("inside edit button")
@@ -158,7 +150,6 @@ async function createFunctionalBtns() {
             let tasks = await getTaskList();
             let taskData = null;
 
-            //fetcining data to display in the input boxes.
             for (let task of tasks) {
                 if (id === String(task.id)) {
                     taskData = task;
@@ -166,7 +157,6 @@ async function createFunctionalBtns() {
                 }
             }
 
-            //display in input box.
             if (taskData) {
                 taskBox.value = taskData.task;
                 preferenceBox.value = taskData.preference;
@@ -225,7 +215,7 @@ async function createFunctionalBtns() {
                                 tags: tagsInputArray,
                             }
 
-                            await updateTask(id, updatedData);//updating tasks.
+                            await updateTask(id, updatedData);
 
                             restoreInputBoxes();
 
@@ -247,20 +237,17 @@ async function createFunctionalBtns() {
     });
 }
 
-//🟢searching.
 searchBox.addEventListener("input", async () => {
-    const searchValue = searchBox.value.toLowerCase(); // make case-insensitive
-    const tasks = await getTaskList(); // fetch all tasks
+    const searchValue = searchBox.value.toLowerCase();
+    const tasks = await getTaskList();
 
-    // filter tasks whose `task` contains searchValue
     const filteredTasks = tasks.filter(t =>
         t.task.toLowerCase().includes(searchValue)
     );
 
-    displayTask(filteredTasks); // show only matching tasks
+    displayTask(filteredTasks);
 });
 
-//🟢emptying all the boxes after adding input.
 function restoreInputBoxes() {
     const btnBox = document.querySelector('.btn-row');
     taskBox.value = "";
@@ -282,7 +269,6 @@ function restoreInputBoxes() {
     if (btnBox) btnBox.remove();
 }
 
-//🟢Adding new List(event listener)
 addBtn.addEventListener("click", async () => {
     const preferenceInput = preferenceBox.value;
     const taskInput = taskBox.value.trim();
@@ -310,7 +296,6 @@ addBtn.addEventListener("click", async () => {
         }
     }
 
-    //adding task.
     const taskData = {
         task: taskInput,
         preference: preferenceInput,
@@ -330,7 +315,6 @@ addBtn.addEventListener("click", async () => {
     return;
 });
 
-//🟢adding task to database..
 async function storeTask(taskData) {
     try {
         const res = await fetch('http://localhost:8000/', {
@@ -339,7 +323,6 @@ async function storeTask(taskData) {
             body: JSON.stringify({ taskData })
         });
         console.log("this is a response", res);
-        // if (!res.ok) throw new Error('Failed to create task');
         showAlert('Task added successfully!', 'success');
     } catch (e) {
         console.error('Error creating task:', e);
@@ -347,7 +330,6 @@ async function storeTask(taskData) {
     }
 }
 
-//🟢removing task from database.
 async function deleteTask(id) {
     try {
         const res = await fetch(`http://localhost:8000/${id}`, {
@@ -362,7 +344,6 @@ async function deleteTask(id) {
     }
 }
 
-//🟢updating tasks.
 async function updateTask(id, updatedData) {
     try {
         const res = await fetch(`http://localhost:8000/${id}`, {
@@ -385,7 +366,6 @@ async function updateTask(id, updatedData) {
     }
 }
 
-//🟢updating only completion status.
 async function updateCompletionStatus(id) {
     try {
         const res = await fetch(`http://localhost:8000/${id}`, {
@@ -401,7 +381,6 @@ async function updateCompletionStatus(id) {
     }
 }
 
-//🟢Updating entire tasks list(sorted order)
 async function updateSortedTasks(sortedTasks) {
     try {
         const res = await fetch('http://localhost:8000/sort', {
@@ -423,7 +402,6 @@ async function updateSortedTasks(sortedTasks) {
 
 
 
-//sorting on the basis of preference.
 function sortByPreference(tasks) {
     const preferenceOrder = {
         High: 1,
@@ -439,7 +417,6 @@ function sortByPreference(tasks) {
     return tasks;
 }
 
-// no sorting applied.
 function sortByIndex(tasks) {
     tasks.sort((a, b) => {
         return Number(a.id) - Number(b.id);
@@ -457,10 +434,8 @@ async function sorting(tasks) {
             tasks = sortByIndex(tasks);
         }
 
-        //save it in the database.
         await updateSortedTasks(tasks);
 
-        //display tasks.
         displayTask(tasks);
     } catch (e) {
         console.error(e);
@@ -478,21 +453,17 @@ sortInput.addEventListener("change", async () => {
 });
 
 
-//🟢showing Alert message.
 function showAlert(message, method) {
     messageBox.innerText = message;
-    // remove any previous state first
     alertBox.classList.remove("success", "error", "show");
-    // add new state
     alertBox.classList.add("show", method === "success" ? "success" : "error");
     setTimeout(() => {
         alertBox.classList.remove("success", "error", "show");
     }, 3000);
 }
 
-//🟢showing confirmation box.
 function showConfirmBox(message) {
-    confirmMsgBox.innerHTML = message; //adding msg to confirm box
+    confirmMsgBox.innerHTML = message;
     confirmBox.classList.add("up");
 
     return new Promise((resolve) => {
