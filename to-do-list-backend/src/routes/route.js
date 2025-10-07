@@ -5,7 +5,8 @@ import {
     updateCompletionStatus,
     updateTask,
     deleteTask,
-    updateSortedTasks
+    updateSortedTasks,
+    searchTask
 } from '../controllers/controller.js';
 
 import { dataValidation } from '../validators/validator.js';
@@ -18,5 +19,6 @@ todoRouter.put('/sort', updateSortedTasks);
 todoRouter.patch('/:id', updateCompletionStatus);
 todoRouter.put('/:id', updateTask);
 todoRouter.delete('/:id', deleteTask);
+todoRouter.get('/search', searchTask);
 
 export default todoRouter;

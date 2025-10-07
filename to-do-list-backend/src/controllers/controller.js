@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename)
 const DB_PATH = path.join(__dirname, '../../database/db.json')
 
-
+/*-----issue in readTask and searchTask */
 async function readTask() {
   try {
     const data = await readFile(DB_PATH, 'utf-8');
@@ -154,5 +154,36 @@ const updateSortedTasks = async (req, res) => {
     res.status(500).json({ error: `failed to sort task, ${e}` });
   }
 }
+const searchTask = async (req, res) => {
+  try {
+    const { text, filter } = req.query;
+    let tasks = await readTask();
 
-export { getAllTasks, addNewTask, updateCompletionStatus, updateTask, deleteTask, updateSortedTasks };
+    if (filter === "tags") {
+      tasks = tasks.filter(task =>
+        Array.isArray(task.tags) &&
+        task.tags.some(tag => tag.toLowerCase().includes(text))
+      );
+    }
+    else if (filter === "title") {
+      tasks = tasks.filter(task =>
+        task.task && task.task.toLowerCase().includes(text)
+      );
+    }
+    else if (filter === "preference") {
+      tasks = tasks.filter(task =>
+        task.preference && task.preference.toLowerCase().includes(text)
+      );
+    }
+
+    return res.status(200).json(tasks);
+  } catch (e) {
+    console.error("Search error:", e);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+
+
+
+export { getAllTasks, addNewTask, updateCompletionStatus, updateTask, deleteTask, updateSortedTasks, searchTask };

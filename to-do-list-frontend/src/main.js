@@ -23,7 +23,7 @@ const sortInput = document.querySelector("#sortInput");
 const alertBox = document.querySelector(".alert-box");
 const messageBox = document.querySelector(".message");
 const searchBox = document.querySelector('#searchInput');
-
+const searchSelect = document.querySelector('#search-select');
 
 
 window.onload = async function () {
@@ -37,6 +37,8 @@ window.onload = async function () {
         showAlert("Could not load tasks from server.", "error");
     }
 };
+
+
 
 
 async function getTaskList() {
@@ -238,15 +240,33 @@ async function createFunctionalBtns() {
 }
 
 searchBox.addEventListener("input", async () => {
-    const searchValue = searchBox.value.toLowerCase();
-    const tasks = await getTaskList();
+    try {
+        const searchText = searchBox.value;
+        const filterValue = searchSelect.value;
 
-    const filteredTasks = tasks.filter(t =>
-        t.task.toLowerCase().includes(searchValue)
-    );
-
-    displayTask(filteredTasks);
+        if (filterValue == "") {
+            throw new Error("add filter value");
+        }
+    } catch (e) {
+        showAlert("add filter value", "error");
+    }
 });
+
+searchSelect.addEventListener("change", async () => {
+
+    try {
+        const searchText = searchBox.value;
+        const filterValue = searchSelect.value;
+
+        const res = await fetch(`/search?text=${searchText}&filter=${encodeURIComponent(filterValue)}`);
+        if (!res.ok) throw new Error('cant search');
+        const filteredTasks = await res.json();
+        displayTask(filteredTasks);
+    } catch (error) {
+        console.error("Search error:", error);
+    }
+});
+
 
 function restoreInputBoxes() {
     const btnBox = document.querySelector('.btn-row');
