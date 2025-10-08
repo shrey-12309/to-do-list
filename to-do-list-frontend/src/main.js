@@ -243,31 +243,41 @@ async function createFunctionalBtns() {
 
 searchBox.addEventListener("input", async () => {
     try {
-        const searchText = searchBox.value;
+        const searchText = searchBox.value.trim();
         const filterValue = searchSelect.value;
 
-        if (filterValue == "") {
-            throw new Error("add filter value");
+        if (!filterValue) throw new Error("Please select filter!");
+        console.log("Searching:", searchText, filterValue);
+
+        const tasks = await getTaskList();
+        let filteredTasks = tasks;
+
+        if (filterValue === "tags") {
+            filteredTasks = tasks.filter(t =>
+                Array.isArray(t.tags) &&
+                t.tags.some(tag => tag.toLowerCase().includes(searchText))
+            );
         }
-    } catch (e) {
-        showAlert("add filter value", "error");
-    }
-});
+        else if (filterValue === "title") {
+            filteredTasks = tasks.filter(t =>
+                t.task && t.task.toLowerCase().includes(searchText)
+            );
+        }
+        else if (filterValue === "preference") {
+            filteredTasks = tasks.filter(t =>
+                t.preference && t.preference.toLowerCase().includes(searchText)
+            );
+        }
 
-searchSelect.addEventListener("change", async () => {
-
-    try {
-        const searchText = searchBox.value;
-        const filterValue = searchSelect.value;
-
-        const res = await fetch(`/search?text=${searchText}&filter=${encodeURIComponent(filterValue)}`);
-        if (!res.ok) throw new Error('cant search');
-        const filteredTasks = await res.json();
+        console.log("Filtered tasks:", filteredTasks);
         displayTask(filteredTasks);
-    } catch (error) {
-        console.error("Search error:", error);
+
+    } catch (err) {
+        showAlert(err.message, 'error');
+        console.error(err);
     }
 });
+
 
 
 function restoreInputBoxes() {

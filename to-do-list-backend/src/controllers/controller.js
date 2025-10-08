@@ -106,7 +106,7 @@ const updateTask = async (req, res, next) => {
     for (let t of tasks) {
       if (id === String(t.id)) {
         isFound = true;
-        Object.assign(t, validatedData); // Merge validated data into task
+        Object.assign(t, validatedData);
         t.updatedAt = new Date().toISOString();
         break;
       }
