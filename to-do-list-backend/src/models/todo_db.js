@@ -1,0 +1,32 @@
+import { mongoose } from 'mongoose'
+
+const todoSchema = new mongoose.Schema({
+    task: {
+        type: String,
+        unique: true,
+        require: true
+    },
+    preference: {
+        type: String,
+        require: true
+    },
+    tags: {
+        type: Array(String)
+    },
+    completed: {
+        type: Boolean,
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        require: true
+    },
+    updatedAt: {
+        type: Date,
+        require: true
+    }
+}
+);
+const Task_Db = mongoose.model('Task', todoSchema);
+
+export default Task_Db;
