@@ -166,17 +166,14 @@ async function createFunctionalBtns() {
                 preferenceBox.value = taskData.preference;
                 tagsBox.value = taskData.tags;
 
-                taskBox.style.background = "#dac2f0ff";
-                taskBox.style.border = "2px solid #c083f6ff";
+                taskBox.style.background = "#ddbea9";
+                taskBox.style.border = "2px solid #936639";
 
-                preferenceBox.style.background = "#dac2f0ff";
-                preferenceBox.style.border = "2px solid #c083f6ff";
+                preferenceBox.style.background = "#ddbea9";
+                preferenceBox.style.border = "2px solid #936639";
 
-                dateTimeBox.style.background = "#dac2f0ff";
-                dateTimeBox.style.border = "2px solid #c083f6ff";
-
-                tagsBox.style.background = "#dac2f0ff";
-                tagsBox.style.border = "2px solid #c083f6ff";
+                tagsBox.style.background = "#ddbea9";
+                tagsBox.style.border = "2px solid #936639";
 
                 const addTaskContainer = document.querySelector('.addTask-container');
                 const existing = document.querySelector('.btn-row');
@@ -249,6 +246,7 @@ searchBox.addEventListener("input", async () => {
         if (!filterValue) throw new Error("Please select filter!");
         console.log("Searching:", searchText, filterValue);
 
+        //getting tasks from backend.
         const tasks = await getTaskList();
         let filteredTasks = tasks;
 
@@ -463,7 +461,7 @@ async function sorting(tasks) {
             tasks = sortByIndex(tasks);
         }
 
-        await updateSortedTasks(tasks);
+        // await updateSortedTasks(tasks);
 
         displayTask(tasks);
     } catch (e) {

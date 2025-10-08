@@ -83,7 +83,7 @@ const updateCompletionStatus = async (req, res) => {
     let isFound = false;
 
     for (let t of tasks) {
-      if (String(t.id) === String(id)) {
+      if (t._id === id) {
         t.completed = !t.completed;
         isFound = true;
         break;
@@ -99,32 +99,43 @@ const updateCompletionStatus = async (req, res) => {
   }
 };
 
-const updateTask = async (req, res, next) => {
+const updateTask = async (req, res) => {
   try {
     const { id } = req.params;
-    const validatedData = await validateRequest(taskUpdateSchema, req.body.taskData);
-    if (!validatedData) return;
-
-    const tasks = await readTask();
-    let isFound = false;
-
-    for (let t of tasks) {
-      if (id === String(t.id)) {
-        isFound = true;
-        Object.assign(t, validatedData);
-        t.updatedAt = new Date().toISOString();
-        break;
-      }
+    const validatedData = await validateRequest(taskUpdateSchema, req.body);
+    if (!validatedData) {
+      return res.status(400).json({ error: "Invalid request data" });
     }
 
-    if (!isFound) return res.status(404).json({ error: `Task not found` });
+    const updateFields = { ...validatedData };
 
-    await writeTask(tasks);
-    res.status(200).json({ success: `task updated successfully!` });
+    // format dateTime if provided
+    if (updateFields.dateTime) {
+      updateFields.dateTime = new Date(updateFields.dateTime).toISOString();
+    }
+
+    // always update the updatedAt field
+    updateFields.updatedAt = new Date().toISOString();
+
+    const updatedTask = await taskModel.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    res.status(200).json({
+      success: "Task updated successfully!",
+      updatedTask,
+    });
   } catch (e) {
-    res.status(500).json({ error: `failed to update task, ${e}` });
+    console.error(e);
+    res.status(500).json({ error: `Failed to update task: ${e.message}` });
   }
-}
+};
 
 const deleteTask = async (req, res) => {
   try {
