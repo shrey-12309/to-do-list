@@ -1,13 +1,9 @@
 import { readFile, writeFile } from 'fs/promises'
 import path from 'path'
-import { stringify } from 'querystring';
 import { fileURLToPath } from 'url'
 
-import * as yup from 'yup';
-let userSchema = yup.object({
-  taskInput: yup.string().required,
-  preferenceInput: yup.string().required,
-});
+import { taskCreateSchema, taskUpdateSchema } from '../schema/schema.js'
+import { validateRequest } from '../validators/validator.js'
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -51,22 +47,24 @@ const getAllTasks = async (req, res) => {
 
 const addNewTask = async (req, res) => {
   try {
-    const { taskData } = req.body;
+    console.log(req.body);
+    const validatedData = await validateRequest(taskCreateSchema, req.body.taskData);
+    if (!validatedData) throw new Error("validation line 53 error found");
 
     const newTask = {
       id: new Date().getTime(),
-      ...taskData,
+      ...validatedData,
       completed: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    }
-
+    };
     const tasks = await readTask();
     tasks.push(newTask);
     await writeTask(tasks);
     res.status(201).json();
-  }
-  catch (e) {
+
+  } catch (e) {
+    console.error(e);
     res.status(500).json({ error: `Failed to add new task, ${e}` });
   }
 }
@@ -96,30 +94,30 @@ const updateCompletionStatus = async (req, res) => {
   }
 };
 
-const updateTask = async (req, res) => {
+const updateTask = async (req, res, next) => {
   try {
     const { id } = req.params;
+    const validatedData = await validateRequest(taskUpdateSchema, req.body.taskData);
+    if (!validatedData) return;
+
     const tasks = await readTask();
     let isFound = false;
-
-    const { task, preference, tags, completed } = req.body;
 
     for (let t of tasks) {
       if (id === String(t.id)) {
         isFound = true;
-        t.task = task;
-        t.preference = preference;
-        t.tags = tags;
-        t.completed = completed;
+        Object.assign(t, validatedData); // Merge validated data into task
         t.updatedAt = new Date().toISOString();
+        break;
       }
     }
+
     if (!isFound) return res.status(404).json({ error: `Task not found` });
+
     await writeTask(tasks);
     res.status(200).json({ success: `task updated successfully!` });
-  }
-  catch (e) {
-    res.status(500).json({ error: `failed to update task. , ${e}` })
+  } catch (e) {
+    res.status(500).json({ error: `failed to update task, ${e}` });
   }
 }
 

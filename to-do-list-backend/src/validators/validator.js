@@ -1,17 +1,13 @@
-const dataValidation = (req, res, next) => {
-    const { task, preference, tags } = req.body;
-
-    if (!task || typeof task !== 'string') {
-        return res.status(400).json({ message: 'Enter a valid task' });
+export const validateRequest = async (schema, data) => {
+    try {
+        const validatedData = await schema.validate(data, {
+            abortEarly: false,
+            stripUnknown: true,
+        });
+        return validatedData;
+    } catch (err) {
+        err.status = 400;
+        console.log(err);
+        throw err;
     }
-    if (typeof preference !== 'string') {
-        return res.status(400).json({ message: 'Enter a valid preference' });
-    }
-    if (typeof tags !== 'string') {
-        return res.status(400).json({ message: 'Enter a valid tag' });
-    }
-
-    next();
 };
-
-export { dataValidation }

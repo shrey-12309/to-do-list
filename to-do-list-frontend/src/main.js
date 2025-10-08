@@ -66,13 +66,15 @@ function displayTask(tasks) {
         }
 
         let preferenceColor = "black";
-        if (t.preference.toLowerCase() === "high") {
-            preferenceColor = "  #5E503F";
-        } else if (t.preference.toLowerCase() === "medium") {
-            preferenceColor = "  #d4aa77ff";
-        } else if (t.preference.toLowerCase() === "low") {
-            preferenceColor = "  #cda97dff";
+        const pref = t.preference ? t.preference.toLowerCase() : "";
+        if (pref === "high") {
+            preferenceColor = "#5E503F";
+        } else if (pref === "medium") {
+            preferenceColor = "#d4aa77ff";
+        } else if (pref === "low") {
+            preferenceColor = "#cda97dff";
         }
+
 
         newLi.innerHTML = `
   <div class="list-container row d-flex align-items-center p-2">
@@ -82,7 +84,7 @@ function displayTask(tasks) {
 
     <div class="d-flex align-items-center text-container py-3 px-3 gap-2">
       <p class="m-0 text-break" style="text-decoration: ${textStyle}">${t.task}</p>
-      <div class="tags-container small text-muted">${t.tags.join(" ")}</div>
+      <div class="tags-container small text-muted">${Array.isArray(t.tags) ? t.tags.join(" ") : ""}</div>
     </div>
 
     <div class="btn-container col-12 d-flex">
@@ -272,7 +274,6 @@ function restoreInputBoxes() {
     const btnBox = document.querySelector('.btn-row');
     taskBox.value = "";
     preferenceBox.value = "";
-    dateTimeBox.value = "";
     tagsBox.value = "";
 
     taskBox.style.background = "white";
@@ -280,9 +281,6 @@ function restoreInputBoxes() {
 
     preferenceBox.style.background = "white";
     preferenceBox.style.border = "none";
-
-    dateTimeBox.style.background = "white";
-    dateTimeBox.style.border = "none";
 
     tagsBox.style.background = "white";
     tagsBox.style.border = "none";
@@ -337,6 +335,7 @@ addBtn.addEventListener("click", async () => {
 
 async function storeTask(taskData) {
     try {
+        console.log('inside store task starting');
         const res = await fetch('http://localhost:8000/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
