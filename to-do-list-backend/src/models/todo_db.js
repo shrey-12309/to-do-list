@@ -24,8 +24,9 @@ const todoSchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         require: true
-    }
-}
+    },
+},
+    { timestamps: true }
 );
 const Task_Db = mongoose.model('Task', todoSchema);
 
