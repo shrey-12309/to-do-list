@@ -6,4 +6,7 @@ dotenv.config({
 const PORT = Number(process.env.PORT) || 8000;
 const DOMAIN = process.env.DOMAIN || 'http://127.0.0.1';
 
-export { PORT, DOMAIN };
+const URI = process.env.URI;
+export { PORT, DOMAIN, URI };
+
+//appName=Clusterdb
