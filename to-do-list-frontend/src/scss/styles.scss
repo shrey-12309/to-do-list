@@ -14,15 +14,18 @@ body {
     min-height: 100vh;
     background: linear-gradient(135deg, #A9927D, #5E503F, #0A0908);
 
-    .head-font {
-        font-size: 2rem;
-    }
+    .left-section {
+        background-color: #A9927D;
 
-    h1 {
-        color: #F2F4F3;
-        font-weight: bolder;
-    }
+        .head-font {
+            font-size: 2rem;
+        }
 
+        h1 {
+            color: #F2F4F3;
+            font-weight: bolder;
+        }
+    }
 
     .brown-btn {
         background: linear-gradient(135deg, #49111C, #5E503F);
@@ -285,5 +288,43 @@ body {
 
     .task-font {
         font-size: 22px;
+    }
+}
+
+
+.layout-container {
+    display: flex;
+    flex-direction: column;
+
+    @media (min-width: 768px) {
+        flex-direction: row;
+        min-height: 100vh;
+    }
+}
+
+.left-section {
+    background-color: #0A0908;
+    color: #F2F4F3;
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    text-align: center;
+
+    h1 {
+        font-size: 3rem;
+        font-weight: bold;
+    }
+}
+
+.right-section {
+    flex: 2;
+    overflow-y: auto;
+
+    .card {
+        background: #5E503F;
+        height: 100%;
+        padding-bottom: 2rem;
     }
 }

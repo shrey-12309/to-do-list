@@ -13,18 +13,18 @@ const todoSchema = new mongoose.Schema({
     tags: {
         type: Array(String)
     },
-    completed: {
+    isCompleted: {
         type: Boolean,
         required: true
     },
-    createdAt: {
-        type: Date,
-        require: true
-    },
-    updatedAt: {
-        type: Date,
-        require: true
-    },
+    // createdAt: {
+    //     type: Date,
+    //     require: true
+    // },
+    // updatedAt: {
+    //     type: Date,
+    //     require: true
+    // },
 },
     { timestamps: true }
 );

@@ -16,7 +16,7 @@ async function addTask(taskData) {
         const res = await fetch("http://localhost:8000/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ taskData }),
+            body: JSON.stringify(taskData),
         });
         showAlert("Task added successfully!", "success");
     } catch (e) {
@@ -43,7 +43,7 @@ async function updateTask(id, updatedData) {
         const res = await fetch(`http://localhost:8000/${id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ updatedData }),
+            body: JSON.stringify(updatedData),
         });
         if (!res.ok) throw new Error("Failed to update task");
         showAlert("Task updated successfully!", "success");
@@ -69,23 +69,34 @@ async function updateCompletionStatus(id) {
     }
 }
 
-async function searchTask(text, filter) {
-
-}
-async function sortTask(filter) {
+async function searchTask(searchText, searchFilter) {
     try {
-        const res = await fetch("http://localhost:8000/sort", {
-            method: "GET",
-            body: JSON.stringify({ sortFilter: filter }),
-        });
+        const res = await fetch(
+            `http://localhost:8000/search?searchText=${searchText}&searchFilter=${searchFilter}`
+        );
         if (!res.ok) {
             throw new Error("Error occurred while sorting");
         }
+        return await res.json();
     } catch (e) {
         console.log(e);
         return res.status(500).json({ error: e });
     }
 }
+
+async function sortTask(sortFilter) {
+    try {
+        const res = await fetch(`http://localhost:8000/sort?sortFilter=${sortFilter}`);
+        if (!res.ok) {
+            throw new Error("Error occurred while sorting");
+        }
+        return await res.json();
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({ error: e });
+    }
+}
+
 
 export {
     getTaskList,

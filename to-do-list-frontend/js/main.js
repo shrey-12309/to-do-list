@@ -1,6 +1,5 @@
 import "../src/scss/styles.scss";
 
-import * as bootstrap from "bootstrap";
 import {
     getTaskList,
     addTask,
@@ -9,87 +8,23 @@ import {
     updateCompletionStatus,
     sortTask,
 } from "./api.js";
-const addBtn = document.querySelector("#addBtn");
-const taskList = document.querySelector("#taskList");
-const functionalBtns = `<div class="functional-btns">
-<img class="del-btn" src="../src/assets/svg/delete.svg" alt="delete-img">
-<img class="edit-btn" src="../src/assets/svg/edit.svg" alt = "edit-img">
-</div>`;
 
+
+const addBtn = document.querySelector("#addBtn");
 const confirmBox = document.querySelector(".confirm-box");
 const confirmMsgBox = document.querySelector(".confirm-msg-box");
 const ul = document.querySelector("#taskList");
-
 const taskBox = document.querySelector("#taskInput");
 const preferenceBox = document.querySelector("#preferenceInput");
 const tagsBox = document.querySelector(".tags-input");
 const sortInput = document.querySelector("#sortInput");
-
 const alertBox = document.querySelector(".alert-box");
 const messageBox = document.querySelector(".message");
 const searchBox = document.querySelector("#searchInput");
 const searchSelect = document.querySelector("#search-select");
 
-window.onload = async function () {
-    try {
-        let tasks = await getTaskList();
-        createFunctionalBtns();
-        displayTask(tasks);
-    } catch (e) {
-        console.error(e);
-        showAlert("Could not load tasks from server.", "error");
-    }
-};
 
-function displayTask(tasks) {
-    const ul = document.querySelector("#taskList");
-    ul.innerHTML = "";
-
-    tasks.forEach((t) => {
-        const newLi = document.createElement("li");
-        let textStyle = "none";
-
-        if (t.isCompleted === true) {
-            textStyle = "line-through";
-        }
-
-        let preferenceColor = "black";
-
-        if (t.preference.toLowerCase() === "high") {
-            preferenceColor = "#5E503F";
-        } else if (t.preference.toLowerCase() === "medium") {
-            preferenceColor = "#d4aa77ff";
-        } else if (t.preference.toLowerCase() === "low") {
-            preferenceColor = "#cda97dff";
-        }
-
-        newLi.innerHTML = `
-      <div class="list-container row d-flex align-items-center p-2">
-        <div class="col-12 col-md-9 data-container d-flex flex-wrap gap-2 align-items-center">
-          <div class="preference-container p-1 px-2 rounded-5" style="background:${preferenceColor}">${t.preference
-            }</div>
-        </div>
-
-        <div class="d-flex align-items-center text-container py-3 px-3 gap-2">
-          <p class="m-0 text-break" style="text-decoration: ${textStyle}">${t.task
-            }</p>
-          <div class="tags-container small text-muted">${t.tags.join(" ")}</div>
-        </div>
-
-        <div class="btn-container col-12 d-flex">
-          <button class="btn primary-btn done-btn">
-            ${t.isCompleted === true ? "Undone" : "Done"}
-          </button>
-          ${functionalBtns}
-        </div>
-      </div>`;
-
-        newLi.id = t._id;
-        ul.appendChild(newLi);
-    });
-}
-
-async function createFunctionalBtns() {
+async function addingEventListeners() {
     ul.addEventListener("click", async (e) => {
         try {
             if (e.target.classList.contains("del-btn")) {
@@ -170,16 +105,16 @@ async function createFunctionalBtns() {
                     newDiv.classList.add("btn-row");
 
                     newDiv.innerHTML = `<div class="col-md-6 d-grid">
-            <button id="save-btn" class="btn primary-btn purple-btn">
-              Save
-            </button>
-          </div>
+                        <button id="save-btn" class="btn primary-btn brown-btn">
+                            Save
+                            </button>
+                        </div>
 
-          <div class="col-md-6 d-grid">
-            <button id="cancel-btn" class="btn primary-btn purple-btn">
-              Cancel
-            </button>
-          </div>`;
+                        <div class="col-md-6 d-grid">
+                            <button id="cancel-btn" class="btn primary-btn brown-btn">
+                            Cancel
+                            </button>
+                        </div>`;
 
                     addTaskContainer.insertAdjacentElement("afterend", newDiv);
 
@@ -220,40 +155,25 @@ async function createFunctionalBtns() {
     });
 }
 
-searchBox.addEventListener("input", async () => {
+searchBox.addEventListener("input", searching);
+
+async function searching() {
     try {
         const searchText = searchBox.value.trim();
-        const filterValue = searchSelect.value;
+        const searchFilter = searchSelect.value;
 
-        if (!filterValue) throw new Error("Please select filter!");
-        console.log("Searching:", searchText, filterValue);
+        if (!searchFilter) throw new Error("Please select filter!");
+        console.log("frontend searching", searchText, searchFilter);
 
-        const tasks = await getTaskList();
-        let filteredTasks = tasks;
-
-        if (filterValue === "tags") {
-            filteredTasks = tasks.filter(
-                (t) =>
-                    Array.isArray(t.tags) &&
-                    t.tags.some((tag) => tag.toLowerCase().includes(searchText))
-            );
-        } else if (filterValue === "title") {
-            filteredTasks = tasks.filter(
-                (t) => t.task && t.task.toLowerCase().includes(searchText)
-            );
-        } else if (filterValue === "preference") {
-            filteredTasks = tasks.filter(
-                (t) => t.preference && t.preference.toLowerCase().includes(searchText)
-            );
-        }
+        const filteredTasks = await searchTask(searchText, searchFilter);
 
         console.log("Filtered tasks:", filteredTasks);
         displayTask(filteredTasks);
+
     } catch (err) {
-        showAlert(err.message, "error");
         console.error(err);
     }
-});
+}
 
 function restoreInputBoxes() {
     // console.log("aaagya");
@@ -294,6 +214,7 @@ addBtn.addEventListener("click", async () => {
         task: taskInput,
         preference: preferenceInput,
         tags: tagsInputArray,
+        isCompleted: false,
     };
     console.log(taskData);
 
@@ -310,18 +231,19 @@ addBtn.addEventListener("click", async () => {
 
 async function sorting() {
     try {
+        console.log("inside frontend sorting");
         const sortValue = sortInput.value;
         let sortedTasks = await sortTask(sortValue);
+        console.log(sortedTasks);
 
-        displayTask(tasks);
+        displayTask(sortedTasks);
+
     } catch (e) {
         console.log(e);
     }
 }
 
 sortInput.addEventListener("change", sorting);
-
-
 
 export function showAlert(message, method) {
     messageBox.innerText = message;
@@ -350,5 +272,68 @@ function showConfirmBox(message) {
             confirmBox.classList.add("down");
             resolve("no");
         };
+    });
+}
+window.onload = async function () {
+    try {
+        let tasks = await getTaskList();
+        addingEventListeners();
+        displayTask(tasks);
+    } catch (e) {
+        console.error(e);
+        showAlert("Could not load tasks from server.", "error");
+    }
+};
+
+const functionalBtns = `<div class="functional-btns">
+<img class="del-btn" src="../src/assets/svg/delete.svg" alt="delete-img">
+<img class="edit-btn" src="../src/assets/svg/edit.svg" alt = "edit-img">
+</div>`;
+
+function displayTask(tasks) {
+    const ul = document.querySelector("#taskList");
+    ul.innerHTML = "";
+
+    tasks.forEach((t) => {
+        const newLi = document.createElement("li");
+        let textStyle = "none";
+
+        if (t.isCompleted === true) {
+            textStyle = "line-through";
+        }
+
+        let preferenceColor = "black";
+
+        if (t.preference.toLowerCase() === "high") {
+            preferenceColor = "#5E503F";
+        } else if (t.preference.toLowerCase() === "medium") {
+            preferenceColor = "#d4aa77ff";
+        } else if (t.preference.toLowerCase() === "low") {
+            preferenceColor = "#cda97dff";
+        }
+
+        newLi.innerHTML = `
+      <div class="list-container row d-flex align-items-center p-2">
+        <div class="col-12 col-md-9 data-container d-flex flex-wrap gap-2 align-items-center">
+          <div class="preference-container p-1 px-2 rounded-5" style="background:${preferenceColor}">${t.preference
+            }</div>
+        </div>
+
+        <div class="d-flex align-items-center text-container py-3 px-3 gap-2">
+          <p class="m-0 text-break" style="text-decoration: ${textStyle}">${t.task
+            }</p>
+          <div class="tags-container small text-muted">${t.tags.join(" ")}</div>
+        </div>
+
+        <div class="btn-container col-12 d-flex">
+          <button class="btn primary-btn done-btn">
+            ${t.isCompleted === true ? "Undone" : "Done"}
+          </button>
+          ${functionalBtns}
+        </div>
+      </div>`;
+
+        newLi.id = t._id;
+        ul.appendChild(newLi);
     });
 }
