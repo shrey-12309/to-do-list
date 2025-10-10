@@ -1,7 +1,7 @@
 import {
     taskCreateSchema,
     taskUpdateSchema,
-} from '../schema/schema.js';
+} from '../schema/taskValidationSchema.js';
 
 export default class toDoValidations {
     validateRequest = async (req, res, next) => {

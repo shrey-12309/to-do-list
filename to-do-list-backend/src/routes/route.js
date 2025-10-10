@@ -1,7 +1,7 @@
 import express from 'express';
-import taskController from '../controllers/controller.js';
+import taskController from '../controllers/taskController.js';
 
-import toDoValidations from '../validators/middlewares/validator.js';
+import toDoValidations from '../validators/middlewares/taskValidation.js';
 const validationInstance = new toDoValidations();
 const taskControllerInstance = new taskController();
 

@@ -17,14 +17,14 @@ const todoSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    createdAt: {
-        type: Date,
-        require: true
-    },
-    updatedAt: {
-        type: Date,
-        require: true
-    },
+    // createdAt: {
+    //     type: Date,
+    //     require: true
+    // },
+    // updatedAt: {
+    //     type: Date,
+    //     require: true
+    // },
 },
     { timestamps: true }
 );
