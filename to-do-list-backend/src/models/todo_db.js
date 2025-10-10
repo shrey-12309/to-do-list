@@ -13,7 +13,7 @@ const todoSchema = new mongoose.Schema({
     tags: {
         type: Array(String)
     },
-    completed: {
+    isCompleted: {
         type: Boolean,
         required: true
     },

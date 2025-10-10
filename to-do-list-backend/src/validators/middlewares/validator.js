@@ -4,14 +4,13 @@ import {
 } from '../schema/schema.js';
 
 export default class toDoValidations {
-    //validation for adding new task in the todo list.
     validateRequest = async (req, res, next) => {
         try {
-            await taskCreateSchema.validate(req.body.taskData, {
+            await taskCreateSchema.validate(req.body, {
                 abortEarly: false,
                 stripUnknown: true,
             });
-            next(); //calling next if task performed.
+            next();
         } catch (err) {
             if (err.name === 'ValidationError') {
                 err.status = 400;
@@ -21,7 +20,6 @@ export default class toDoValidations {
         }
     };
 
-    //validation for updating values.
     updateRequest = async (req, res, next) => {
         try {
             await taskUpdateSchema.validate(req.body, {
