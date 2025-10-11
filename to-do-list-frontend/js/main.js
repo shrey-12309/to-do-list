@@ -7,6 +7,7 @@ import {
     updateTask,
     updateCompletionStatus,
     sortTask,
+    searchTask,
 } from "./api.js";
 
 

@@ -1,3 +1,4 @@
+// Import all of Bootstrap’s CSS
 @import "bootstrap/scss/bootstrap";
 
 * {
@@ -74,7 +75,6 @@ body {
         padding: 5px;
         max-height: 400px;
         overflow-y: auto;
-        // overflow-x: hidden;
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 1rem;
@@ -255,12 +255,6 @@ body {
     .task-font {
         font-size: 19px;
     }
-
-    // #taskList {
-    //     li {
-    //         width: 40%;
-    //     }
-    // }
 }
 
 @media (min-width: 1200px) {
@@ -305,12 +299,13 @@ body {
 .left-section {
     background-color: #0A0908;
     color: #F2F4F3;
-    flex: 2;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 2rem;
     text-align: center;
+    max-height: 85vh;
+    border-radius: 1rem;
 
     h1 {
         font-size: 3rem;
@@ -319,8 +314,8 @@ body {
 }
 
 .right-section {
-    flex: 2;
     overflow-y: auto;
+    border-radius: 1rem;
 
     .card {
         background: #5E503F;

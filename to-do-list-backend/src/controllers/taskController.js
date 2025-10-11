@@ -1,10 +1,10 @@
-import Task_Db from '../models/taskDB.js';
+import TaskDb from '../models/taskDB.js';
 
 export default class taskController {
 
   getAllTasks = async (req, res, next) => {
     try {
-      const data = await Task_Db.find();
+      const data = await TaskDb.find();
       if (!data) {
         throw new Error('Failed to read task List');
       }
@@ -16,7 +16,7 @@ export default class taskController {
 
   addNewTask = async (req, res, next) => {
     try {
-      await Task_Db.create(req.body);
+      await TaskDb.create(req.body);
       res.status(201).json();
     } catch (e) {
       next(e);
@@ -28,13 +28,13 @@ export default class taskController {
       const { id } = req.params;
       if (!id) return res.status(400).json({ error: 'Missing task ID' });
 
-      const prevItem = await Task_Db.findById(id);
+      const prevItem = await TaskDb.findById(id);
 
       if (!prevItem) {
         throw new Error('Cannot Find Item!', { statusCode: 404 });
       }
 
-      const updatedItem = await Task_Db.findByIdAndUpdate(
+      const updatedItem = await TaskDb.findByIdAndUpdate(
         id,
         { $set: { isCompleted: !prevItem.isCompleted } },
         { new: true }
@@ -54,7 +54,7 @@ export default class taskController {
     try {
       const { id } = req.params;
 
-      const updatedTask = await Task_Db.findByIdAndUpdate(
+      const updatedTask = await TaskDb.findByIdAndUpdate(
         id,
         { $set: req.body },
         { new: true }
@@ -76,7 +76,7 @@ export default class taskController {
     try {
       const { id } = req.params;
 
-      const delItem = await Task_Db.findByIdAndDelete(id);
+      const delItem = await TaskDb.findByIdAndDelete(id);
 
       if (!delItem) {
         throw new Error('Item to be deleted not found', { statusCode: 404 });
@@ -97,9 +97,9 @@ export default class taskController {
       let filteredTasks = null;
 
       if (sortFilter === 'pending') {
-        filteredTasks = await Task_Db.find({ isCompleted: false });
+        filteredTasks = await TaskDb.find({ isCompleted: false });
       } else if (sortFilter === 'completed') {
-        filteredTasks = await Task_Db.find({ isCompleted: true });
+        filteredTasks = await TaskDb.find({ isCompleted: true });
       }
 
       if (!filteredTasks) {
@@ -120,7 +120,7 @@ export default class taskController {
 
       console.log(searchFilter, searchText);
 
-      const filteredTasks = await taskModel.find({
+      const filteredTasks = await TaskDb.find({
         $or: [
           { task: { $regex: searchText, $options: "i" } },
           { preference: { $regex: searchText, $options: "i" } },
