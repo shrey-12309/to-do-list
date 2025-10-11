@@ -8,7 +8,7 @@ export default class UserOperations {
       const userpassword = req.body.password
       const userrole = req.body.role
 
-      const hashedPassword = await bcrypt.hash(userpassword, 20)
+      const hashedPassword = await bcrypt.hash(userpassword, 10)
 
       const newUser = {
         username: username,
@@ -16,8 +16,8 @@ export default class UserOperations {
         password: hashedPassword,
         role: userrole,
       }
-      const user = await User.create(newUser)
-      console.log(user)
+      const newuser = await user.create(newUser)
+      console.log(newuser)
       res.status(201).json({ message: 'user registered', success: true })
     } catch (err) {
       next(err)
