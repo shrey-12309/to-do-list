@@ -28,6 +28,6 @@ const todoSchema = new mongoose.Schema({
 },
     { timestamps: true }
 );
-const Task_Db = mongoose.model('Task', todoSchema);
+const TaskDb = mongoose.model('Task', todoSchema);
 
-export default Task_Db;
+export default TaskDb;

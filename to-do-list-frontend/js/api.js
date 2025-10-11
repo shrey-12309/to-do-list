@@ -1,109 +1,110 @@
 import { showAlert } from "./main.js";
 
 async function getTaskList() {
-    try {
-        const res = await fetch("http://localhost:8000");
-        if (!res.ok) throw new Error("Failed to fetch tasks from backend.");
-        return await res.json();
-    } catch (e) {
-        console.error("Error fetching tasks:", e);
-        showAlert(`Could not load tasks from server!`, "error");
-    }
+  try {
+    const res = await fetch("http://localhost:8000");
+    if (!res.ok) throw new Error("Failed to fetch tasks from backend.");
+    return await res.json();
+  } catch (e) {
+    console.error("Error fetching tasks:", e);
+    showAlert(`Could not load tasks from server!`, "error");
+  }
 }
 
 async function addTask(taskData) {
-    try {
-        const res = await fetch("http://localhost:8000/", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(taskData),
-        });
-        showAlert("Task added successfully!", "success");
-    } catch (e) {
-        console.error("Error creating task:", e);
-        showAlert("Could not add task to server", "error");
-    }
+  try {
+    const res = await fetch("http://localhost:8000/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(taskData),
+    });
+    showAlert("Task added successfully!", "success");
+  } catch (e) {
+    console.error("Error creating task:", e);
+    showAlert("Could not add task to server", "error");
+  }
 }
 
 async function deleteTask(id) {
-    try {
-        const res = await fetch(`http://localhost:8000/${id}`, {
-            method: "DELETE",
-        });
-        if (!res.ok) throw new Error("Failed to delete task");
-        showAlert("Task deleted successfully!", "success");
-    } catch (e) {
-        console.error("Error deleting task:", e);
-        showAlert("Could not delete task from server", "error");
-    }
+  try {
+    const res = await fetch(`http://localhost:8000/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Failed to delete task");
+    showAlert("Task deleted successfully!", "success");
+  } catch (e) {
+    console.error("Error deleting task:", e);
+    showAlert("Could not delete task from server", "error");
+  }
 }
 
 async function updateTask(id, updatedData) {
-    try {
-        const res = await fetch(`http://localhost:8000/${id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updatedData),
-        });
-        if (!res.ok) throw new Error("Failed to update task");
-        showAlert("Task updated successfully!", "success");
-        return;
-    } catch (e) {
-        console.error("Error updating task:", e);
-        showAlert("Could not update task on server", "error");
-    }
+  try {
+    const res = await fetch(`http://localhost:8000/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedData),
+    });
+    if (!res.ok) throw new Error("Failed to update task");
+    showAlert("Task updated successfully!", "success");
+    return;
+  } catch (e) {
+    console.error("Error updating task:", e);
+    showAlert("Could not update task on server", "error");
+  }
 }
 
 async function updateCompletionStatus(id) {
-    try {
-        const res = await fetch(`http://localhost:8000/${id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({}),
-        });
+  try {
+    const res = await fetch(`http://localhost:8000/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
 
-        if (!res.ok) throw new Error("Failed to update completion status");
-    } catch (e) {
-        console.error(e);
-        showAlert("Could not update task status", "error");
-    }
+    if (!res.ok) throw new Error("Failed to update completion status");
+  } catch (e) {
+    console.error(e);
+    showAlert("Could not update task status", "error");
+  }
 }
 
 async function searchTask(searchText, searchFilter) {
-    try {
-        const res = await fetch(
-            `http://localhost:8000/search?searchText=${searchText}&searchFilter=${searchFilter}`
-        );
-        if (!res.ok) {
-            throw new Error("Error occurred while sorting");
-        }
-        return await res.json();
-    } catch (e) {
-        console.log(e);
-        return res.status(500).json({ error: e });
+  try {
+    const res = await fetch(
+      `http://localhost:8000/search?searchText=${searchText}&searchFilter=${searchFilter}`
+    );
+    if (!res.ok) {
+      throw new Error("Error occurred while sorting");
     }
+    return await res.json();
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ error: e, message: "error in loading" });
+  }
 }
 
 async function sortTask(sortFilter) {
-    try {
-        const res = await fetch(`http://localhost:8000/sort?sortFilter=${sortFilter}`);
-        if (!res.ok) {
-            throw new Error("Error occurred while sorting");
-        }
-        return await res.json();
-    } catch (e) {
-        console.log(e);
-        return res.status(500).json({ error: e });
+  try {
+    const res = await fetch(
+      `http://localhost:8000/sort?sortFilter=${sortFilter}`
+    );
+    if (!res.ok) {
+      throw new Error("Error occurred while sorting");
     }
+    return await res.json();
+  } catch (e) {
+    console.log(e);
+    return res.status(500).json({ error: e,message:"error found" });
+  }
 }
 
-
 export {
-    getTaskList,
-    addTask,
-    deleteTask,
-    updateTask,
-    updateCompletionStatus,
-    searchTask,
-    sortTask,
+  getTaskList,
+  addTask,
+  deleteTask,
+  updateTask,
+  updateCompletionStatus,
+  searchTask,
+  sortTask,
 };
