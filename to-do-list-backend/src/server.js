@@ -37,7 +37,7 @@ app.use(loggerMiddleware)
 app.use('/auth', authRouter)
 app.use('/protected', protectedRoute)
 app.use('/', todoRouter)
-app.use('/api/otp', otpRoutes)
+// app.use('/api/otp', otpRoutes)
 
 app.listen(port, () => {
   console.log(`Server Running At ${domain}:${port}`)

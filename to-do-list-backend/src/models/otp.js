@@ -7,8 +7,13 @@ const otpModel = new mongoose.Schema(
       required: true,
     },
     otp: {
-      type: String,
+      type: Array(String),
       required: true,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      expires: 300,
     },
   },
   {

@@ -4,7 +4,7 @@ import mailSender from '../utility/mailSender.js'
 
 async function sendOTP(req, res, next) {
   try {
-    const email = req.body.email
+    const { email } = req.body
 
     let otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
@@ -12,37 +12,60 @@ async function sendOTP(req, res, next) {
       specialChars: false,
     })
 
-    console.log(otp)
-
-    let result = await OTP.findOne({ otp: otp })
-
-    while (result) {
+    let existing = await OTP.findOne({ otp })
+    while (existing) {
       otp = otpGenerator.generate(6, {
         upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
       })
-      result = await OTP.findOne({ otp: otp })
+      existing = await OTP.findOne({ otp })
     }
 
-    const otpPayload = { email, otp }
-    const otpBody = await OTP.create(otpPayload)
+    await OTP.create({ email, otp })
 
-    const mailResponse = await mailSender(
+    await mailSender(
       email,
       'Verification Email',
-      `<h1>Please confirm your OTP</h1>
-       <p>Here is your OTP code: ${otp}</p>`
+      `<h1>Email Verification</h1><p>Your OTP: <strong>${otp}</strong></p>`
     )
-    console.log('Email sent successfully: ', mailResponse)
 
     res.status(200).json({
       success: true,
       message: 'OTP sent successfully',
-      otpBody,
     })
-
-    next()
   } catch (err) {
     next(err)
   }
 }
-export { sendOTP }
+
+async function verifyOTP(req, res, next) {
+  try {
+    const { email, otp } = req.body
+    const existingOtp = await OTP.findOne({ email, otp })
+
+    if (!existingOtp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP',
+      })
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: 'OTP verified successfully' })
+  } catch (err) {
+    next(err)
+  }
+}
+
+async function resendOTP(req, res, next) {
+  try {
+    req.body.email = req.body.email
+    await sendOTP(req, res, next)
+  } catch (err) {
+    next(err)
+  }
+}
+
+export { sendOTP, verifyOTP, resendOTP }
