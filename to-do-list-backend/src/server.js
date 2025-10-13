@@ -1,13 +1,13 @@
+import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import { PORT, DOMAIN, URI } from '../constants.js'
-import todoRouter from './routes/route.js'
 import { connectToMongoDB } from '../DB/connect.js'
-import userRouter from './routes/userRoute.js'
-import loggerMiddleware from './middleware/loggerMiddleware.js'
-import bodyParser from 'body-parser'
-// import { connect } from './db.js'
-import authRoutes from './routes/auth.js'
+import todoRouter from './routes/taskRoute.js'
+import loggerMiddleware from './middlewares/loggerMiddleware.js'
+import authRouter from './routes/authRoutes.js'
+import protectedRoute from './routes/authProtectedRoute.js'
+import otpRoutes from './routes/authRoutes.js'
 
 const app = express()
 const port = PORT
@@ -21,34 +21,24 @@ app.use(cors())
 app.use(express.json())
 app.use(express.static('public'))
 
-app.use('/', todoRouter)
-app.use('/user', userRouter)
+app.use((err, req, res, next) => {
+  try {
+    const status = err.status || 500
 
-app.use((err, req, res) => {
-  res.status(500).send({
-    message: err.message,
-    success: false,
-  })
+    res.status(status).json({
+      error: err.message || 'Server Error',
+    })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
+  }
 })
+
+app.use(loggerMiddleware)
+app.use('/auth', authRouter)
+app.use('/protected', protectedRoute)
+app.use('/', todoRouter)
+app.use('/api/otp', otpRoutes)
 
 app.listen(port, () => {
   console.log(`Server Running At ${domain}:${port}`)
 })
-
-// Middleware
-app.use(bodyParser.json())
-
-// Routes
-app.use('/auth', authRoutes)
-
-// Connect to the database before starting the server
-// connect()
-//   .then(() => {
-//     // Start server
-//     app.listen(PORT, () => {
-//       console.log(`Server is running on port ${PORT}`)
-//     })
-//   })
-//   .catch((error) => {
-//     console.error('Error connecting to database:', error)
-//   })

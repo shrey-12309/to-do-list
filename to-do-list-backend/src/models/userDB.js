@@ -4,7 +4,6 @@ const userModel = new mongoose.Schema(
   {
     username: {
       type: String,
-      unique: true,
       required: true,
     },
     email: {
@@ -21,6 +20,10 @@ const userModel = new mongoose.Schema(
       type: String,
       required: true,
       enum: ['user', 'admin'],
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   {
