@@ -1,8 +1,9 @@
 import { Router } from 'express'
 import AuthenticationController from '../controllers/userController.js'
-import { sendOTP, verifyOTP, resendOTP } from '../controllers/otpController.js'
+import { sendOTP } from '../controllers/otpController.js'
 
 const authRouter = Router()
+
 const authentication = new AuthenticationController()
 
 authRouter.use((req, res, next) => {
@@ -13,7 +14,5 @@ authRouter.use((req, res, next) => {
 authRouter.post('/sign-up', authentication.registerUser)
 authRouter.post('/login', authentication.loginUser)
 authRouter.post('/logout', authentication.logoutUser)
-authRouter.post('/verify-otp', verifyOTP)
-authRouter.post('/resend-otp', resendOTP)
 
 export default authRouter

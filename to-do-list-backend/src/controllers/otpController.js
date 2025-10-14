@@ -2,9 +2,14 @@ import OTP from '../models/otp.js'
 import otpGenerator from 'otp-generator'
 import mailSender from '../utility/mailSender.js'
 
-async function sendOTP(req, res, next) {
+export async function sendOTP(req, res) {
   try {
     const { email } = req.body
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Email is required' })
+    }
 
     let otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
@@ -12,60 +17,84 @@ async function sendOTP(req, res, next) {
       specialChars: false,
     })
 
-    let existing = await OTP.findOne({ otp })
-    while (existing) {
-      otp = otpGenerator.generate(6, {
-        upperCaseAlphabets: false,
-        lowerCaseAlphabets: false,
-        specialChars: false,
-      })
-      existing = await OTP.findOne({ otp })
+    while (await OTP.findOne({ 'otps.code': otp })) {
+      otp = otpGenerator.generate(6, { upperCaseAlphabets: false })
     }
 
-    await OTP.create({ email, otp })
+    let otpDoc = await OTP.findOne({ email })
+
+    if (!otpDoc) {
+      otpDoc = new OTP({ email, otps: [] })
+    } else if (!Array.isArray(otpDoc.otps)) {
+      otpDoc.otps = []
+    }
+
+    otpDoc.otps.push({ code: otp })
+    await otpDoc.save()
 
     await mailSender(
       email,
       'Verification Email',
-      `<h1>Email Verification</h1><p>Your OTP: <strong>${otp}</strong></p>`
+      `<h1>Please confirm your OTP</h1>
+       <p>Your new OTP code is: <b>${otp}</b></p>
+       <p>It will expire in 5 minutes.</p>`
     )
 
-    res.status(200).json({
+    console.log(`✅ OTP sent to ${email}: ${otp}`)
+
+    return res.status(200).json({
       success: true,
       message: 'OTP sent successfully',
     })
   } catch (err) {
-    next(err)
+    console.error('Error sending OTP:', err)
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to send OTP',
+    })
   }
 }
 
-async function verifyOTP(req, res, next) {
+export async function verifyOTP(req, res) {
   try {
     const { email, otp } = req.body
-    const existingOtp = await OTP.findOne({ email, otp })
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'Email and OTP are required' })
+    }
 
-    if (!existingOtp) {
+    const otpDoc = await OTP.findOne({ email })
+    if (!otpDoc || otpDoc.otps.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'No OTPs found for this email' })
+    }
+
+    const latestOTP = otpDoc.otps[otpDoc.otps.length - 1]
+
+    const now = Date.now()
+    const diff = (now - latestOTP.createdAt.getTime()) / 1000 // in seconds
+    if (diff > 300) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid or expired OTP',
+        message: 'OTP expired, please request a new one',
       })
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: 'OTP verified successfully' })
-  } catch (err) {
-    next(err)
+    if (latestOTP.code !== otp) {
+      return res.status(400).json({ success: false, message: 'Invalid OTP' })
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'OTP verified successfully',
+    })
+  } catch (error) {
+    console.error('OTP verification error:', error)
+    return res.status(500).json({
+      success: false,
+      message: 'Server error during OTP verification',
+    })
   }
 }
-
-async function resendOTP(req, res, next) {
-  try {
-    req.body.email = req.body.email
-    await sendOTP(req, res, next)
-  } catch (err) {
-    next(err)
-  }
-}
-
-export { sendOTP, verifyOTP, resendOTP }

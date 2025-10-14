@@ -7,7 +7,7 @@ import todoRouter from './routes/taskRoute.js'
 import loggerMiddleware from './middlewares/loggerMiddleware.js'
 import authRouter from './routes/authRoutes.js'
 import protectedRoute from './routes/authProtectedRoute.js'
-import otpRoutes from './routes/authRoutes.js'
+import otpRoutes from './routes/otpRoutes.js'
 
 const app = express()
 const port = PORT
@@ -37,7 +37,7 @@ app.use(loggerMiddleware)
 app.use('/auth', authRouter)
 app.use('/protected', protectedRoute)
 app.use('/', todoRouter)
-// app.use('/api/otp', otpRoutes)
+app.use('/api/otp', otpRoutes)
 
 app.listen(port, () => {
   console.log(`Server Running At ${domain}:${port}`)
