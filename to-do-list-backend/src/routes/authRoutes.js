@@ -14,6 +14,5 @@ authRouter.use((req, res, next) => {
 authRouter.post('/sign-up', authentication.registerUser)
 authRouter.post('/login', authentication.loginUser)
 authRouter.post('/logout', authentication.logoutUser)
-// authRouter.post('/auth/otp', sendOTP)
 
 export default authRouter

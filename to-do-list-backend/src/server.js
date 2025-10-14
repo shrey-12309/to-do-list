@@ -7,7 +7,7 @@ import todoRouter from './routes/taskRoute.js'
 import loggerMiddleware from './middlewares/loggerMiddleware.js'
 import authRouter from './routes/authRoutes.js'
 import protectedRoute from './routes/authProtectedRoute.js'
-import otpRoutes from './routes/authRoutes.js'
+import otpRoutes from './routes/otpRoutes.js'
 
 const app = express()
 const port = PORT

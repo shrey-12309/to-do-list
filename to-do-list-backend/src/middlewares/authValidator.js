@@ -1,23 +1,28 @@
 import jwt from 'jsonwebtoken'
-import dotenv from 'dotenv'
+import { JWT_SECRET_KEY } from '../../constants.js'
 
-dotenv.config()
-
-export default function verifyToken(req, res, next) {
-  const secretKey = process.env.JWT_SECRET_KEY
-  const authHeader = req.header('Authorization')
-  const token = authHeader.split(' ')[1]
-
-  if (!token) {
-    res.status(401)
-    res.json({ success: false, message: 'No token found, access denied' })
-  }
-
+export default function verifyAccessToken(req, res, next) {
   try {
-    const decoded = jwt.verify(token, secretKey)
-    req.userId = decoded.userId
+    const authHeader = req.headers.authorization
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res
+        .status(401)
+        .json({ message: 'Access token missing or malformed' })
+    }
+
+    const token = authHeader.split(' ')[1]
+    const decoded = jwt.verify(token, JWT_SECRET_KEY)
+
+    req.user = decoded
     next()
-  } catch (error) {
-    next(error)
+  } catch (err) {
+    console.error('Token verification error:', err.message)
+
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Access token expired' })
+    }
+
+    res.status(401).json({ message: 'Invalid access token' })
   }
 }

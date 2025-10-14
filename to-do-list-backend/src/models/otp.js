@@ -1,20 +1,17 @@
 import mongoose from 'mongoose'
 
-const otpModel = new mongoose.Schema(
-  {
-    email: {
-      type: String,
-      required: true,
-    },
-    otp: {
-      type: String,
-      required: true,
-    },
+const otpSchema = new mongoose.Schema({
+  email: {
+    type: String,
+    required: true,
+    unique: true,
   },
-  {
-    timestamps: true,
-  }
-)
+  otps: [
+    {
+      code: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now },
+    },
+  ],
+})
 
-const OTP = mongoose.model('OTP', otpModel)
-export default OTP
+export default mongoose.model('OTP', otpSchema)
