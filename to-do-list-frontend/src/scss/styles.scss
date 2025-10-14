@@ -1,5 +1,5 @@
 // Import all of Bootstrap’s CSS
-@import "bootstrap/scss/bootstrap";
+@use "bootstrap" as *;
 
 * {
   margin: 0;
@@ -16,7 +16,6 @@ body {
   background: linear-gradient(135deg, #a9927d, #5e503f, #0a0908);
 
   .left-section {
-    // background-color: #a9927d;
     background: linear-gradient(135deg, #e6ccb2, #7f5539, #6c584c);
 
     border: 1px solid black;

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify OTP</title>
+    <link rel="stylesheet" href="../scss/otp.scss" />
+  </head>
+  <body>
+    <div class="otp-header">
+      <h4>Verify OTP</h4>
+    </div>
+    <div class="mid-container">
+      <div class="otp-container">
+        <div class="otp-form">
+          <label for="otp">OTP</label>
+          <input type="text" id="otp" placeholder="Enter OTP" required />
+
+          <button type="button" class="verify-btn" onclick="verifyOtp()">
+            Verify OTP
+          </button>
+          <button type="button" class="resend-btn"><u>Resend OTP</u></button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function verifyOtp() {
+        window.location.href = "http://localhost:5178/src/pages/signup.html";
+      }
+    </script>
+  </body>
+</html>

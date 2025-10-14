@@ -1,0 +1,85 @@
+$primary-color: #5e503f;
+$background-color: #e6ccb2;
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: $background-color;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+}
+.mid-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.otp-container {
+  display: flex;
+  //   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  //   max-height: 100vh;
+  padding: 20px;
+}
+
+.otp-header {
+  width: 100%;
+  background-color: $primary-color;
+  color: white;
+  text-align: center;
+  padding: 20px 0;
+
+  h4 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+}
+
+.otp-form {
+  background-color: white;
+  padding: 20px;
+  margin-top: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  label {
+    font-weight: bold;
+    font-size: 0.95rem;
+  }
+
+  input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+  }
+
+  .resend-btn {
+    padding: 12px;
+    border: none;
+    background-color: white;
+    color: $primary-color;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .verify-btn {
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    background-color: $primary-color;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken($primary-color, 5%);
+    }
+  }
+}

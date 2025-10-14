@@ -4,15 +4,45 @@ import dotenv from 'dotenv'
 import User from '../models/userDB.js'
 import { JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY } from '../../constants.js'
 import Otp from '../models/userModel.js'
-import { sendOTP } from './otpController.js'
+import { sendOTP, signupOTP } from './otpController.js'
 
 dotenv.config()
 
 export default class AuthenticationController {
+  // registerUser = async (req, res, next) => {
+  //   try {
+  //     const { email, password, username, role } = req.body
+  //     const hashedPass = await bcrypt.hash(password, 10)
+  //     const existingUser = await User.findOne({ email })
+  //     if (existingUser) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: 'User already exists',
+  //       })
+  //     }
+  //     const user = new User({ email, password: hashedPass, username, role })
+  //     await user.save()
+
+  //     sendOTP()
+
+  //     const recentOtp = await Otp.findOne({ email }).sort({ createdAt: -1 })
+  //     if (!recentOtp || recentOtp.otp !== otp) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: 'Invalid or expired OTP',
+  //       })
+  //     }
+
+  //     res.status(201).json({ success: true, user })
+  //   } catch (error) {
+  //     next(error)
+  //   }
+  // }
+
   registerUser = async (req, res, next) => {
     try {
       const { email, password, username, role } = req.body
-      const hashedPass = await bcrypt.hash(password, 10)
+
       const existingUser = await User.findOne({ email })
       if (existingUser) {
         return res.status(400).json({
@@ -20,20 +50,15 @@ export default class AuthenticationController {
           message: 'User already exists',
         })
       }
-      const user = new User({ email, password: hashedPass, username, role })
-      await user.save()
 
-      sendOTP()
+      // Send OTP and wait for it to be saved
+      const otp = await signupOTP(email)
 
-      const recentOtp = await Otp.findOne({ email }).sort({ createdAt: -1 })
-      if (!recentOtp || recentOtp.otp !== otp) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid or expired OTP',
-        })
-      }
-
-      res.status(201).json({ success: true, user })
+      res.status(200).json({
+        success: true,
+        message: 'OTP sent to your email. Verify to complete registration',
+        email,
+      })
     } catch (error) {
       next(error)
     }
