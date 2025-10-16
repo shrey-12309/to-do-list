@@ -1,4 +1,4 @@
-import { DOMAIN, PORT } from "../constants.js";
+import { DOMAIN, PORT } from "../../../constants.js";
 import userApi from "../userApi.js";
 
 const BASE_URL = `${DOMAIN}:${PORT}`;
@@ -28,7 +28,7 @@ loginForm.addEventListener("submit", async (e) => {
   localStorage.setItem("accessToken", data.accessToken);
   localStorage.setItem("refreshToken", data.refreshToken);
 
-  window.location.href = "/";
+  window.location.href = "/src/index.html";
 });
 
 resetPasswordLink.addEventListener("click", async (e) => {

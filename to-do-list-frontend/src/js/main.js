@@ -25,6 +25,9 @@ import {
   searchTask,
 } from "./api.js";
 
+const accessToken = localStorage.getItem("accessToken");
+if (!accessToken) window.location.href = "/src/pages/login.html";
+
 async function addingEventListeners() {
   ul.addEventListener("click", async (e) => {
     try {

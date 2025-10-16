@@ -24,8 +24,6 @@ resetForm.addEventListener("submit", async (e) => {
   const newPassword = passwordBox.value;
   const confirmPassword = confirmPasswordBox.value;
 
-  // const email = getEmailFromQuery();
-
   if (!email) {
     showMessage("Email not provided in URL", "error");
     return;
