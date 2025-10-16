@@ -2,6 +2,7 @@ import OTP from '../models/otp.js'
 import otpGenerator from 'otp-generator'
 import mailSender from '../utility/mailSender.js'
 import userModel from '../models/userDB.js'
+import bcrypt from 'bcrypt'
 
 export async function signupOTP(email) {
   try {
@@ -148,48 +149,38 @@ export async function verifyOTP(req, res) {
   }
 }
 
-export async function resetPassword(req, res) {
-  const { email, currentPassword, newPassword } = req.body
-
+export async function resetPassword(req, res, next) {
   try {
-    if (!email || !currentPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'All fields are required' })
+    const { email, password } = req.body
+    console.log(email, password)
+
+    if (!email || !password) {
+      throw new Error('Email and new password are required', {
+        statusCode: 400,
+      })
     }
 
-    const user = await User.findOne({ email })
+    const user = await userModel.findOne({ email })
+    console.log(user)
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' })
+      throw new Error('User with this email does not exist', {
+        statusCode: 404,
+      })
     }
 
-    if (!user.isVerified) {
-      return res
-        .status(403)
-        .json({ success: false, message: 'Email not verified' })
-    }
-    const isMatch = await bcrypt.compare(currentPassword, user.password)
-    if (!isMatch) {
-      return res
-        .status(401)
-        .json({ success: false, message: 'Incorrect current password' })
-    }
-
-    const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(newPassword, salt)
+    const saltRounds = 10
+    const hashedPassword = await bcrypt.hash(password, saltRounds)
 
     user.password = hashedPassword
     await user.save()
 
     return res.status(200).json({
       success: true,
-      message: 'Password updated successfully',
+      message: 'Password has been successfully reset',
     })
-  } catch (err) {
-    console.error('Reset password error:', err.message)
-    return res
-      .status(500)
-      .json({ success: false, message: 'Internal server error' })
+  } catch (e) {
+    console.log(e.message)
+    next(e)
   }
 }

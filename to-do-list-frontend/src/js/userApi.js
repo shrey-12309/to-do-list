@@ -1,5 +1,5 @@
-import { DOMAIN, PORT } from "../constants.js";
-import TokenManager from "../utils/tokenManager.js";
+import { DOMAIN, PORT } from "../../constants.js";
+import TokenManager from "../../utils/tokenManager.js";
 
 const BASE_URL = `${DOMAIN}:${PORT}`;
 const tokenManager = new TokenManager();
@@ -52,6 +52,7 @@ export default class userApi {
 
   loginUser = async (email, password) => {
     try {
+      console.log(`${BASE_URL}/auth/login`);
       const res = await fetch(`${BASE_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -108,7 +109,7 @@ export default class userApi {
         throw new Error("No refresh token available");
       }
 
-      const response = await fetch(`${BASE_URL}/refresh-token`, {
+      const response = await fetch(`${BASE_URL}/refreshToken`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,7 +123,6 @@ export default class userApi {
 
       const data = await response.json();
 
-      // Store new tokens
       tokenManager.setTokens(data.accessToken, data.refreshToken);
 
       return data;
@@ -136,5 +136,26 @@ export default class userApi {
   logout = () => {
     tokenManager.clearTokens();
     window.location.href = "/pages/login.html";
+  };
+
+  resetPassword = async (email, password) => {
+    try {
+      const res = await fetch(`${BASE_URL}/api/otp/reset`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.log("Unable to reset password");
+        throw new Error(errorData.message || "OTP failed");
+      }
+
+      console.log("password reset successfully");
+    } catch (e) {
+      console.error("unable to reset password", e);
+      throw e;
+    }
   };
 }

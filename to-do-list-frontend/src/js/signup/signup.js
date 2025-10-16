@@ -1,5 +1,5 @@
-import { DOMAIN, PORT } from "../constants.js";
-import userApi from "./userApi.js";
+import { DOMAIN, PORT } from "../../../constants.js";
+import userApi from "../userApi.js";
 
 const userApiInstance = new userApi();
 

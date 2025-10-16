@@ -1,4 +1,4 @@
-import "../src/scss/styles.scss";
+import "../scss/styles.scss";
 
 import {
   addBtn,

@@ -8,7 +8,7 @@ const verifyBtn = document.querySelector(".verify-btn");
 const resendBtn = document.querySelector(".resend-btn");
 const email = localStorage.getItem("email");
 
-import userApi from "./userApi.js";
+import userApi from "../userApi.js";
 const userApiInstance = new userApi();
 
 async function sendOTP(email) {
