@@ -35,11 +35,6 @@ resetPasswordLink.addEventListener("click", async (e) => {
   e.preventDefault();
   const email = emailBox.value.trim();
 
-  if (!email) {
-    console.error("Please enter your email to reset password");
-    return;
-  }
-
-  await userApiInstance.sendOTP(email);
-  window.location.href = "/src/pages/resetPassword.html";
+  userApiInstance.sendOTP(email);
+  window.location.href = "/src/pages/otp.html?type=reset";
 });

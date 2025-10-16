@@ -29,7 +29,7 @@ registerForm.addEventListener("submit", async (e) => {
     await userApiInstance.sendOTP(email);
 
     localStorage.setItem("email", email);
-    window.location.href = "/src/pages/otp.html";
+    window.location.href = "/src/pages/otp.html?type=login";
   } catch (err) {
     console.error("Registration Failed:", err.message);
   }
