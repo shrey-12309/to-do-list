@@ -10,6 +10,7 @@ export default {
         signup: resolve(__dirname, "src/pages/signup.html"),
         login: resolve(__dirname, "src/pages/login.html"),
         otp: resolve(__dirname, "src/pages/otp.html"),
+        resetPassword: resolve(__dirname, "src/pages/registerPassword.html"),
       },
     },
   },

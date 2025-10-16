@@ -8,18 +8,11 @@ body {
   font-family: Arial, sans-serif;
   height: 100vh;
 }
-.mid-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 .otp-container {
   display: flex;
-  //   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  //   max-height: 100vh;
+  align-items: center;
   padding: 20px;
 }
 

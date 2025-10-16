@@ -20,6 +20,7 @@ console.log('this is connect to mongo db function')
 app.use(cors())
 app.use(express.json())
 app.use(express.static('public'))
+app.use(loggerMiddleware)
 
 app.use((err, req, res, next) => {
   try {
@@ -33,7 +34,6 @@ app.use((err, req, res, next) => {
   }
 })
 
-app.use(loggerMiddleware)
 app.use('/auth', authRouter)
 app.use('/protected', protectedRoute)
 app.use('/', todoRouter)

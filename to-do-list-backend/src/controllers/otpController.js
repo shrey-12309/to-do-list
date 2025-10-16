@@ -1,7 +1,7 @@
 import OTP from '../models/otp.js'
 import otpGenerator from 'otp-generator'
 import mailSender from '../utility/mailSender.js'
-import userModel from '../models/userModel.js'
+import userModel from '../models/userDB.js'
 
 export async function signupOTP(email) {
   try {
@@ -131,6 +131,7 @@ export async function verifyOTP(req, res) {
       return res.status(400).json({ success: false, message: 'Invalid OTP' })
     }
     const user = await userModel.findOne({ email })
+
     user.isVerified = true
     await user.save()
 

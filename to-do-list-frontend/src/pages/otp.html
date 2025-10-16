@@ -10,23 +10,21 @@
     <div class="otp-header">
       <h4>Verify OTP</h4>
     </div>
-    <div class="mid-container">
-      <div class="otp-container">
-        <div class="otp-form">
-          <label for="otp">OTP</label>
-          <input type="text" id="otp" placeholder="Enter OTP" required />
+    <div class="otp-container">
+      <div class="otp-form">
+        <label for="otp">OTP</label>
+        <input type="text" id="otp" placeholder="Enter OTP" required />
 
-          <button type="button" class="verify-btn" onclick="verifyOtp()">
-            Verify OTP
-          </button>
-          <button type="button" class="resend-btn"><u>Resend OTP</u></button>
-        </div>
+        <button type="button" class="verify-btn" onclick="verifyOtp()">
+          Verify OTP
+        </button>
+        <button type="button" class="resend-btn"><u>Resend OTP</u></button>
       </div>
     </div>
 
     <script>
       function verifyOtp() {
-        window.location.href = "http://localhost:5178/src/pages/signup.html";
+        window.location.href = "http://localhost:5178/src/pages/login.html";
       }
     </script>
   </body>
