@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import User from '../models/userDB.js'
 import { JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY } from '../../constants.js'
 import { sendOTP, signupOTP } from './otpController.js'
+// import { getAccessToken, getRefreshToken } from '../utils/jwtUtils.js'
 
 dotenv.config()
 
@@ -101,7 +102,23 @@ export default class AuthenticationController {
 
   refreshToken = async (req, res, next) => {
     try {
-      const { userId } = req.body
-    } catch {}
+      const { refreshToken } = req.headers.refreshToken
+
+      console.log(refreshToken)
+
+      const payload = await verifyRefreshToken(refreshToken)
+
+      const user = await userModel.findById(payload.userId)
+
+      if (!user) {
+        throw new Error('user not found', { statusCode: 404 })
+      }
+
+      const newAccessToken = getAccessToken(user)
+      return res.status(200).json({ accessToken: newAccessToken })
+    } catch (e) {
+      console.error('Error refreshing token:', e)
+      next(e)
+    }
   }
 }

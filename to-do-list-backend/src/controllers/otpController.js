@@ -1,6 +1,6 @@
 import OTP from '../models/otp.js'
 import otpGenerator from 'otp-generator'
-import mailSender from '../utility/mailSender.js'
+import mailSender from '../utils/mailSender.js'
 import userModel from '../models/userDB.js'
 import bcrypt from 'bcrypt'
 

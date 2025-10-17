@@ -8,6 +8,7 @@ import loggerMiddleware from './middlewares/loggerMiddleware.js'
 import authRouter from './routes/authRoutes.js'
 import protectedRoute from './routes/authProtectedRoute.js'
 import otpRoutes from './routes/otpRoutes.js'
+import verifyToken from './middlewares/tokenVerification.js'
 
 const app = express()
 const port = PORT
@@ -17,7 +18,13 @@ const uri = URI
 connectToMongoDB(uri)
 console.log('this is connect to mongo db function')
 
-app.use(cors())
+app.use(
+  cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'authorization'],
+  })
+)
 app.use(express.json())
 app.use(express.static('public'))
 app.use(loggerMiddleware)
@@ -38,6 +45,7 @@ app.use('/auth', authRouter)
 app.use('/protected', protectedRoute)
 app.use('/', todoRouter)
 app.use('/api/otp', otpRoutes)
+app.use('/', verifyToken, todoRouter)
 
 app.listen(port, () => {
   console.log(`Server Running At ${domain}:${port}`)

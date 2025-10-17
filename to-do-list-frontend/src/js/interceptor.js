@@ -1,78 +1,58 @@
+import { DOMAIN, PORT } from "../../constants.js";
+
 const BASE_URL = `${DOMAIN}:${PORT}`;
 
-function getLocalAccessToken() {
-  return localStorage.getItem("accessToken");
-}
+export default async function fetchAuth(url, options = {}, retry = true) {
+  console.log("fetch auth used");
+  const accessToken = localStorage.getItem("accessToken");
+  const refreshToken = localStorage.getItem("refreshToken");
 
-function getLocalRefreshToken() {
-  return localStorage.getItem("refreshToken");
-}
-
-function setTokens({ accessToken, refreshToken }) {
-  localStorage.setItem("accessToken", accessToken);
-  localStorage.setItem("refreshToken", refreshToken);
-}
-
-async function refreshAccessToken() {
-  const refreshToken = getLocalRefreshToken();
-
-  const response = await fetch(`${BASE_URL}/auth/refresh`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ refreshToken }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Refresh token invalid or expired");
+  if (!accessToken || !refreshToken) {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    window.location.href = "/pages/login.html";
+    return;
   }
 
-  const data = await response.json();
-
-  setTokens({
-    accessToken: data.accessToken,
-    refreshToken: data.refreshToken,
-  });
-
-  return data.accessToken;
-}
-
-export async function fetchWithAuth(url, options = {}, retry = true) {
-  const accessToken = getLocalAccessToken();
-
-  const authOptions = {
-    ...options,
-    headers: {
-      ...(options.headers || {}),
-      Authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
+  const headers = {
+    ...(options.headers || {}),
+    authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json",
   };
 
-  const response = await fetch(`${BASE_URL}${url}`, authOptions);
+  try {
+    const res = await fetch(url, { ...options, headers });
 
-  if (response.status === 401 && retry) {
-    try {
-      const newAccessToken = await refreshAccessToken();
+    if (res.status === 401 && retry) {
+      const resData = await res.json();
 
-      const retryOptions = {
-        ...options,
-        headers: {
-          ...(options.headers || {}),
-          Authorization: `Bearer ${newAccessToken}`,
-          "Content-Type": "application/json",
-        },
-      };
+      if (resData.message === "jwt expired") {
+        const renewResponse = await fetch(`${BASE_URL}/user/refreshToken`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            refreshToken: refreshToken,
+          },
+        });
 
-      return await fetch(`${BASE_URL}${url}`, retryOptions);
-    } catch (err) {
-      console.error("Token refresh failed:", err);
-      localStorage.clear();
-      window.location.href = "/login";
-      throw err;
+        if (!renewResponse.ok) {
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          window.location.reload();
+          return;
+        }
+
+        const renewData = await renewResponse.json();
+
+        localStorage.setItem("accessToken", renewData.accessToken);
+        localStorage.setItem("refreshToken", renewData.refreshToken);
+
+        return fetchAuth(url, options, false);
+      }
     }
+    return res;
+  } catch (error) {
+    console.error("fetchAuth error:", error);
+    throw error;
   }
-
-  return response;
 }
