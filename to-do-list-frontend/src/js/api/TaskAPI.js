@@ -9,10 +9,10 @@ export default class TaskAPI {
       const res = await fetchAuth(`${BASE_URL}`);
 
       let data;
-
       try {
         const parsedRes = await res.json();
         data = parsedRes.data;
+        console.log(data);
       } catch {
         data = null;
       }
@@ -133,24 +133,6 @@ export default class TaskAPI {
 
       return filteredData.filteredTasks;
     } catch (err) {
-      throw err;
-    }
-  };
-
-  clearTask = async () => {
-    try {
-      const res = await fetchAuth(`${BASE_URL}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Error in deleting all tasks!");
-      }
-
-      return;
-    } catch (err) {
-      console.log(err);
       throw err;
     }
   };

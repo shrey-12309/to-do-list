@@ -35,7 +35,7 @@ export default class OtpController {
     }
   }
 
-  async verifyOTP(req, res, next) {
+  async verifyOtp(req, res, next) {
     try {
       const { email, otp } = req.body
 

@@ -16,7 +16,6 @@ import {
   searchSelect,
   saveCancelBtn,
   logoutBtn,
-  clearTask,
 } from "./mainConstants.js";
 
 const api = new TaskAPI();
@@ -24,7 +23,7 @@ const tokenManager = new TokenManagerClass();
 const accessToken = localStorage.getItem("accessToken");
 
 if (!accessToken) {
-  window.location.href = `/pages/login`;
+  window.location.href = `/src/pages/login`;
 }
 
 window.onload = async function () {
@@ -340,16 +339,5 @@ logoutBtn.addEventListener("click", () => {
     window.location.href = "/pages/login";
   } catch (e) {
     showAlert("Unable to logout user! Please try after sometime");
-  }
-});
-
-clearTask.addEventListener("click", async () => {
-  try {
-    await api.clearTask();
-    showAlert("Task cleared successfully!");
-
-    displayTask([]);
-  } catch (e) {
-    showAlert(e.message);
   }
 });

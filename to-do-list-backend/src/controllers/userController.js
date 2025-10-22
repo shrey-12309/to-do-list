@@ -8,38 +8,39 @@ import {
 
 export default class UserController {
   registerUser = async (req, res, next) => {
+    console.log('inside register user backend')
     try {
       const { username, email, password } = req.body
 
-      // ✅ Check required fields
       if (!username || !email || !password) {
         res.status(400)
         return next(new Error('All fields are required'))
       }
 
-      // ✅ Check if user already exists
       const existingUser = await userModel.findOne({ email })
+      console.log(existingUser)
       if (existingUser) {
         res.status(400)
         return next(new Error('User already exists! Please login to continue.'))
       }
 
-      // ✅ Hash password securely
       const hashedPassword = await bcrypt.hash(password, 10)
 
-      // ✅ Create user
       const newUser = await userModel.create({
         username,
         email,
         password: hashedPassword,
       })
 
+      console.log(newUser)
       if (!newUser) {
+        console.log('unable to create')
         res.status(400)
         return next(new Error('Unable to register user! Please try again.'))
       }
 
-      // ✅ Success response
+      console.log('this is user', newUser)
+
       res.status(201).json({
         success: true,
         message: 'User registered successfully',
@@ -67,7 +68,7 @@ export default class UserController {
 
       if (!user.isVerified) {
         res.status(401)
-        res.redirect = '/pages/otp?type=reset'
+        res.redirect = '/src/pages/otp?type=reset'
         next(
           new Error(
             `Account not verified. Please verify your email before logging in.`
@@ -80,7 +81,7 @@ export default class UserController {
       if (!passwordMatch) {
         console.log('password not matched invoked!')
         res.status(401)
-        next(new Error(`Password not matched, Please try again`))
+        return next(new Error(`Password not matched, Please try again`))
       }
 
       const accessToken = await getAccessToken(user)

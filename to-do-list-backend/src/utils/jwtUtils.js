@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import { JWT_SECRET_KEY, JWT_REFRESH_KEY } from '../../constants.js'
 
 const getAccessToken = async (user) => {
+  console.log('this is acccessss token', JWT_SECRET_KEY)
   const token = jwt.sign({ userId: user._id }, JWT_SECRET_KEY, {
     expiresIn: '6h',
   })
@@ -9,6 +10,7 @@ const getAccessToken = async (user) => {
 }
 
 const getRefreshToken = async (user) => {
+  console.log('this is refresh token', JWT_REFRESH_KEY)
   const token = jwt.sign({ userId: user._id }, JWT_REFRESH_KEY, {
     expiresIn: '90d',
   })

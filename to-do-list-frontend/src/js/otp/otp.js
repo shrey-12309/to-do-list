@@ -9,7 +9,9 @@ if (accessToken) {
 }
 
 const otpBox = document.querySelector(".otp-input");
+console.log(otpBox);
 const verifyBtn = document.querySelector(".verify-btn");
+console.log(verifyBtn);
 const resendBtn = document.querySelector(".resend-btn");
 const email = localStorage.getItem("email");
 
@@ -26,11 +28,12 @@ verifyBtn.addEventListener("click", async (e) => {
       showAlert("User not found! Please register to continue!", "error");
       await wait(3000);
 
-      window.location.href = "/pages/register";
+      window.location.href = "/src/pages/register";
       return;
     }
 
-    await api.verifyOTP(email, otp);
+    await api.verifyOtp(email, otp);
+    console.log("ok");
 
     const urlParams = new URLSearchParams(window.location.search);
     const type = urlParams.get("type");

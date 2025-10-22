@@ -26,6 +26,10 @@ app.use('/', verifyToken, taskRouter)
 
 app.use((err, req, res, next) => {
   try {
+    console.log('global middleware called')
+
+    console.log(err.message)
+
     if (res.statusCode === 200) res.statusCode = 500
     const status = res.statusCode || 500
 

@@ -1,13 +1,18 @@
 import TaskDb from '../models/taskDB.js'
 
-export default class taskController {
+export default class TaskController {
   getAllTasks = async (req, res, next) => {
     try {
-      const data = await TaskDb.find()
+      const userId = req.user
+
+      const data = await TaskDb.find({ user: userId })
+
       if (!data) {
-        throw new Error('Failed to read task List')
+        res.status(404)
+        return next(new Error(`No tasks found for this user.`))
       }
-      return await res.json(data)
+
+      return await res.status(200).json({ success: true, data })
     } catch (e) {
       next(e)
     }
@@ -15,9 +20,13 @@ export default class taskController {
 
   addNewTask = async (req, res, next) => {
     try {
-      await TaskDb.create(req.body)
+      const user = req.user
 
-      res.status(201).json()
+      await TaskDb.create({ user, ...req.body })
+
+      res
+        .status(201)
+        .json({ success: true, message: `task added successfully!` })
     } catch (e) {
       next(e)
     }
@@ -26,25 +35,32 @@ export default class taskController {
   updateCompletionStatus = async (req, res, next) => {
     try {
       const { id } = req.params
-      if (!id) return res.status(400).json({ error: 'Missing task ID' })
+      if (!id) {
+        res.status(400)
+        return next(new Error('Bad Request, Task ID is missing'))
+      }
 
       const prevItem = await TaskDb.findById(id)
 
       if (!prevItem) {
-        throw new Error('Cannot Find Item!', { statusCode: 404 })
+        res.status(404)
+        return next(new Error(`Unable to find task!`))
       }
 
-      const updatedItem = await TaskDb.findOneAndUpdate(
-        { _id: id },
-        [{ $set: { isCompleted: { $not: ['$isCompleted'] } } }],
+      const updatedItem = await TaskDb.findByIdAndUpdate(
+        id,
+        { $set: { isCompleted: !prevItem.isCompleted } },
         { new: true }
       )
 
       if (!updatedItem) {
-        throw new Error('Failed to update the completion status')
+        res.status(404)
+        return next(new Error(`failed to update task!`))
       }
 
-      return res.status(200).json({ message: 'Completion status updated.' })
+      return res
+        .status(200)
+        .json({ success: false, message: `task updated successfully!` })
     } catch (e) {
       next(e)
     }
@@ -53,7 +69,6 @@ export default class taskController {
   updateTask = async (req, res, next) => {
     try {
       const { id } = req.params
-
       const updatedTask = await TaskDb.findByIdAndUpdate(
         id,
         { $set: req.body },
@@ -61,12 +76,13 @@ export default class taskController {
       )
 
       if (!updatedTask) {
-        throw new Error('Unable to update task!')
+        res.status(404)
+        return next(new Error(`failed to update task!`))
       }
 
-      res.status(200).json({
-        message: 'Task updated successfully!',
-      })
+      return res
+        .status(200)
+        .json({ success: false, message: `task updated successfully!` })
     } catch (e) {
       next(e)
     }
@@ -75,11 +91,11 @@ export default class taskController {
   deleteTask = async (req, res, next) => {
     try {
       const { id } = req.params
-
       const delItem = await TaskDb.findByIdAndDelete(id)
 
       if (!delItem) {
-        throw new Error('Item to be deleted not found', { statusCode: 404 })
+        res.status(404)
+        return next(new Error(`Item to be deleted not found`))
       }
 
       res.status(204).json({ message: `task deleted successfully!` })
@@ -90,23 +106,27 @@ export default class taskController {
 
   sortTask = async (req, res, next) => {
     try {
-      console.log('inside backend sorting')
       const sortFilter = req.query.sortFilter
-      console.log(sortFilter)
+      const user = req.user
 
       let filteredTasks = null
 
       if (sortFilter === 'pending') {
-        filteredTasks = await TaskDb.find({ isCompleted: false })
+        filteredTasks = await TaskDb.find({
+          $and: [{ isCompleted: false }, { user }],
+        })
       } else if (sortFilter === 'completed') {
-        filteredTasks = await TaskDb.find({ isCompleted: true })
+        filteredTasks = await TaskDb.find({
+          $and: [{ isCompleted: true }, { user }],
+        })
       }
 
       if (!filteredTasks) {
-        throw new Error('cannot fetch sorted tasks')
+        res.status(404)
+        next(new Error(`Unable to fetch sorted task!`))
       }
-      console.log('this is filtered tasks', filteredTasks)
-      return await res.json(filteredTasks)
+
+      res.status(200).json({ success: true, filteredTasks })
     } catch (e) {
       next(e)
     }
@@ -114,25 +134,49 @@ export default class taskController {
 
   searchTask = async (req, res, next) => {
     try {
-      let { searchText, searchFilter } = req.query
+      let { searchText } = req.query
+      const user = req.user
+
       searchText = searchText.toLowerCase()
 
-      console.log(searchFilter, searchText)
-
       const filteredTasks = await TaskDb.find({
-        $or: [
-          { task: { $regex: searchText, $options: 'i' } },
-          { preference: { $regex: searchText, $options: 'i' } },
-          { tags: { $elemMatch: { $regex: searchText, $options: 'i' } } },
+        $and: [
+          {
+            $or: [
+              { task: { $regex: searchText, $options: 'i' } },
+              { preference: { $regex: searchText, $options: 'i' } },
+              { tags: { $elemMatch: { $regex: searchText, $options: 'i' } } },
+            ],
+          },
+          { user },
         ],
       })
 
       if (!filteredTasks) {
-        throw new Error('cannot fetch searched tasks')
+        res.status(404)
+        next(new Error('cannot fetch searched tasks'))
       }
 
-      console.log('this is filtered tasks', filteredTasks)
       return await res.json(filteredTasks)
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  clearTask = async (req, res, next) => {
+    try {
+      const user = req.user
+      const del = await TaskDb.deleteMany({ user })
+
+      if (!del) {
+        res.status(404)
+        next(new Error('Unable to delete all tasks!'))
+      }
+
+      res.status(200).json({
+        message: 'All tasks deleted successfully!',
+        success: true,
+      })
     } catch (e) {
       next(e)
     }

@@ -1,5 +1,5 @@
 import AuthAPI from "../api/AuthAPI.js";
-import showAlert from "../toast.js";
+import { wait, showAlert } from "../toast.js";
 
 const api = new AuthAPI();
 const accessToken = localStorage.getItem("accessToken");
@@ -8,10 +8,11 @@ if (accessToken) {
   window.location.href = "/";
 }
 
-const registerForm = document.querySelector(".register-form");
+const registerForm = document.querySelector(".registerForm");
 const emailBox = document.querySelector("#email");
 const passwordBox = document.querySelector("#password");
 const usernameBox = document.querySelector("#username");
+console.log(registerForm);
 
 registerForm.addEventListener("submit", async (e) => {
   try {
@@ -38,8 +39,8 @@ registerForm.addEventListener("submit", async (e) => {
     showAlert("OTP sent successfully");
     await wait(3000);
 
-    window.location.href = "/pages/otp?type=login";
-  } catch (e) {
+    window.location.href = "/src/pages/otp?type=login";
+  } catch (err) {
     showAlert(err.message, "error");
   }
 });

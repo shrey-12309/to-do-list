@@ -7,17 +7,26 @@
     <link rel="stylesheet" href="../scss/otp.scss" />
   </head>
   <body>
+    <div
+      class="toast-container position-fixed bottom-0 end-0 p-3"
+      id="toastContainer"
+    ></div>
+
     <div class="otp-header">
       <h4>Verify OTP</h4>
     </div>
     <div class="otp-container">
       <div class="otp-form">
         <label for="otp">OTP</label>
-        <input type="text" id="otp" placeholder="Enter OTP" required />
+        <input
+          type="text"
+          class="otp-input"
+          id="otp"
+          placeholder="Enter OTP"
+          required
+        />
 
-        <button type="button" class="verify-btn" onclick="verifyOtp()">
-          Verify OTP
-        </button>
+        <button type="button" class="verify-btn">Verify OTP</button>
         <button type="button" class="resend-btn"><u>Resend OTP</u></button>
       </div>
     </div>

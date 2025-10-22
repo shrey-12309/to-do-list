@@ -12,7 +12,7 @@ export default class AuthAPI {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
-
+      console.log(res);
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || "Registration failed!");
@@ -43,9 +43,9 @@ export default class AuthAPI {
     }
   };
 
-  verifyOTP = async (email, otp) => {
+  verifyOtp = async (email, otp) => {
     try {
-      const res = await fetch(`${BASE_URL}/otp/verifyOTP`, {
+      const res = await fetch(`${BASE_URL}/otp/verifyOtp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
@@ -65,7 +65,7 @@ export default class AuthAPI {
 
   sendOTP = async (email) => {
     try {
-      const res = await fetch(`${BASE_URL}/otp/sendOTP?redirect=loginPage`, {
+      const res = await fetch(`${BASE_URL}/otp/sendOTP`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
