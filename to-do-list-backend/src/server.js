@@ -1,13 +1,11 @@
-import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import { PORT, DOMAIN, URI } from '../constants.js'
+import taskRouter from './routes/taskRoute.js'
+import userRouter from './routes/userRoute.js'
 import { connectToMongoDB } from '../DB/connect.js'
-import todoRouter from './routes/taskRoute.js'
-import loggerMiddleware from './middlewares/loggerMiddleware.js'
-import authRouter from './routes/authRoutes.js'
-import protectedRoute from './routes/authProtectedRoute.js'
-import otpRoutes from './routes/otpRoutes.js'
+import loggerMiddleware from './middlewares/logger.js'
+import { otpRouter } from './routes/otpRoute.js'
 import verifyToken from './middlewares/tokenVerification.js'
 
 const app = express()
@@ -16,36 +14,28 @@ const domain = DOMAIN
 const uri = URI
 
 connectToMongoDB(uri)
-console.log('this is connect to mongo db function')
 
-app.use(
-  cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'authorization'],
-  })
-)
+app.use(cors())
 app.use(express.json())
 app.use(express.static('public'))
 app.use(loggerMiddleware)
 
+app.use('/user', userRouter)
+app.use('/otp', otpRouter)
+app.use('/', verifyToken, taskRouter)
+
 app.use((err, req, res, next) => {
   try {
-    const status = err.status || 500
+    if (res.statusCode === 200) res.statusCode = 500
+    const status = res.statusCode || 500
 
     res.status(status).json({
       error: err.message || 'Server Error',
     })
-  } catch (e) {
-    res.status(500).json({ error: e.message })
+  } catch {
+    return res.status(500).json({ error: 'Internal Server Error' })
   }
 })
-
-app.use('/auth', authRouter)
-app.use('/protected', protectedRoute)
-app.use('/', todoRouter)
-app.use('/api/otp', otpRoutes)
-app.use('/', verifyToken, todoRouter)
 
 app.listen(port, () => {
   console.log(`Server Running At ${domain}:${port}`)

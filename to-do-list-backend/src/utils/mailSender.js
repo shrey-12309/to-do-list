@@ -1,36 +1,36 @@
-// src/utility/mailSender.js
 import nodemailer from 'nodemailer'
-import dotenv from 'dotenv'
-dotenv.config()
+import { MAIL_HOST, MAIL_PASS, MAIL_USER } from '../../constants.js'
+console.log(MAIL_HOST, MAIL_PASS, MAIL_USER)
 
 const mailSender = async (email, title, body) => {
-  if (!process.env.MAIL_USER || !process.env.MAIL_PASS) {
-    throw new Error('Missing MAIL_USER or MAIL_PASS in environment variables')
+  try {
+    let transporter = nodemailer.createTransport({
+      host: MAIL_HOST,
+      port: 587,
+      secure: false,
+      auth: {
+        user: MAIL_USER,
+        pass: MAIL_PASS,
+      },
+    })
+
+    transporter.verify((error, success) => {
+      if (error) console.log('Transporter verification failed:', error)
+      else console.log('Transporter is ready')
+    })
+
+    let info = await transporter.sendMail({
+      from: `"Shreya Jha" <${MAIL_USER}>`,
+      to: email,
+      subject: title,
+      html: body,
+    })
+
+    console.log('Email sent:', info.response)
+    return info
+  } catch (error) {
+    console.log('Error sending email:', error.message)
   }
-
-  const transporter = nodemailer.createTransport({
-    host: process.env.MAIL_HOST || 'smtp.gmail.com',
-    port: Number(process.env.MAIL_PORT) || 465,
-    secure: process.env.MAIL_PORT ? process.env.MAIL_PORT === '465' : true,
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
-    },
-  })
-
-  // verify transporter config
-  await transporter.verify()
-
-  const mailOptions = {
-    from: process.env.MAIL_FROM || process.env.MAIL_USER,
-    to: email,
-    subject: title,
-    html: body,
-  }
-
-  const info = await transporter.sendMail(mailOptions)
-  console.log('Email sent:', info.response)
-  return info
 }
 
-export default mailSender
+export { mailSender }
