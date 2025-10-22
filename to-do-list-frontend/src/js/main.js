@@ -31,7 +31,6 @@ window.onload = async function () {
     let tasks = await api.getTaskList();
 
     createFunctionalBtns();
-    updateAnalyticBox(tasks);
     displayTask(tasks);
   } catch (err) {
     showAlert(err.message, "error");
@@ -39,7 +38,11 @@ window.onload = async function () {
 };
 
 function displayTask(tasks) {
+  console.log("this is the display tasks");
+
   const ul = document.querySelector("#taskList");
+  console.log(ul);
+
   ul.innerHTML = "";
 
   tasks.forEach((t) => {
@@ -53,11 +56,11 @@ function displayTask(tasks) {
     let preferenceColor = "black";
 
     if (t.preference.toLowerCase() === "high") {
-      preferenceColor = " linear-gradient(135deg, #3e0791ff, #563190ff);";
+      preferenceColor = "#654126ff";
     } else if (t.preference.toLowerCase() === "medium") {
-      preferenceColor = "linear-gradient(135deg, #5537aeff, #a75ee8ff);";
+      preferenceColor = "#9f754fff";
     } else if (t.preference.toLowerCase() === "low") {
-      preferenceColor = "linear-gradient(135deg, #7C3AED, #A78BFA);";
+      preferenceColor = "#a9927d";
     }
 
     newLi.innerHTML = `
@@ -105,7 +108,6 @@ async function createFunctionalBtns() {
           const tasks = await api.getTaskList();
 
           displayTask(tasks);
-          updateAnalyticBox(tasks);
           showAlert("Task Deleted Successfully!", "success");
         }
       }
@@ -125,7 +127,6 @@ async function createFunctionalBtns() {
         const tasks = await api.getTaskList();
 
         displayTask(tasks);
-        updateAnalyticBox(tasks);
       }
     } catch (e) {
       showAlert("Unable to mark task as isCompleted", "error");
@@ -152,14 +153,14 @@ async function createFunctionalBtns() {
         preferenceBox.value = taskData.preference;
         tagsBox.value = taskData.tags;
 
-        taskBox.style.background = "#dac2f0ff";
-        taskBox.style.border = "2px solid #c083f6ff";
+        taskBox.style.background = "#a9927d";
+        taskBox.style.border = "2px solid #5e503f";
 
-        preferenceBox.style.background = "#dac2f0ff";
-        preferenceBox.style.border = "2px solid #c083f6ff";
+        preferenceBox.style.background = "#a9927d";
+        preferenceBox.style.border = "2px solid #5e503f";
 
-        tagsBox.style.background = "#dac2f0ff";
-        tagsBox.style.border = "2px solid #c083f6ff";
+        tagsBox.style.background = "#a9927d";
+        tagsBox.style.border = "2px solid #5e503f";
 
         const addTaskContainer = document.querySelector(".addTask-container");
         const existing = document.querySelector(".btn-row");
@@ -277,7 +278,6 @@ addBtn.addEventListener("click", async () => {
     let tasks = await api.getTaskList();
 
     displayTask(tasks);
-    updateAnalyticBox(tasks);
 
     showAlert("Task added successfully!", "success");
 
@@ -300,17 +300,6 @@ async function sorting() {
 }
 
 sortInput.addEventListener("change", sorting);
-
-function updateAnalyticBox(tasks) {
-  const total = tasks.length;
-  const completed = tasks.filter((t) => t.isCompleted === true).length;
-  const pending = total - completed;
-
-  document.querySelector(".total-tasks .analytic-body").innerText = total;
-  document.querySelector(".completed-tasks .analytic-body").innerText =
-    completed;
-  document.querySelector(".pending-tasks .analytic-body").innerText = pending;
-}
 
 function showConfirmBox(message) {
   confirmMsgBox.innerHTML = message;

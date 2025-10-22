@@ -12,7 +12,6 @@ export default class TaskAPI {
       try {
         const parsedRes = await res.json();
         data = parsedRes.data;
-        console.log(data);
       } catch {
         data = null;
       }

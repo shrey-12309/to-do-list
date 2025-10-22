@@ -1,7 +1,8 @@
 const functionalBtns = `<div class="functional-btns">
-<img class="del-btn" src="./assets/svg/delete.svg" alt="delete-img">
-<img class="edit-btn" src="./assets/svg/pencil.svg" alt = "edit-img">
+<img class="del-btn" src="/svgs/delete.svg" alt="delete-img">
+<img class="edit-btn" src="/svgs/edit.svg" alt = "edit-img">
 </div>`;
+
 const saveCancelBtn = `<div class="col-md-6 d-grid">
 <button id="save-btn" class="btn primary-btn purple-btn">
               Save

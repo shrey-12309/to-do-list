@@ -5,7 +5,8 @@ export default class TaskController {
     try {
       const userId = req.user
 
-      const data = await TaskDb.find({ user: userId })
+      const data = await TaskDb.find({})
+      console.log('this is frontend data', data)
 
       if (!data) {
         res.status(404)
