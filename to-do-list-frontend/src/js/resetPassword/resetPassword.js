@@ -1,57 +1,41 @@
-import { DOMAIN, PORT } from "../../../constants.js";
-import userApi from "../userApi.js";
+import AuthAPI from "../api/AuthAPI.js";
+import { wait, showAlert } from "../toast.js";
 
-const userApiInstance = new userApi();
+const api = new AuthAPI();
+const accessToken = localStorage.getItem("accessToken");
 
-const BASE_URL = `${DOMAIN}:${PORT}`;
+if (accessToken) {
+  window.location.href = "/";
+}
 
 const resetForm = document.querySelector(".reset-form");
-console.log(resetForm);
 const passwordBox = document.querySelector("#password");
 const confirmPasswordBox = document.querySelector("#confirm-password");
 const email = localStorage.getItem("email");
 
-let messageBox = document.querySelector(".message-box");
-if (!messageBox) {
-  messageBox = document.createElement("div");
-  messageBox.className = "message-box";
-  resetForm.appendChild(messageBox);
-}
-
 resetForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const newPassword = passwordBox.value;
-  const confirmPassword = confirmPasswordBox.value;
-
-  if (!email) {
-    showMessage("Email not provided in URL", "error");
-    return;
-  }
-
-  if (!newPassword || !confirmPassword) {
-    showMessage("Please fill all fields", "error");
-    return;
-  }
-
-  if (newPassword !== confirmPassword) {
-    showMessage("Passwords do not match", "error");
-    return;
-  }
-
   try {
-    await userApiInstance.resetPassword(email, newPassword);
+    e.preventDefault();
+    const password = passwordBox.value;
+    const confirmPassword = confirmPasswordBox.value;
 
-    showMessage("Password reset successful! Please login.", "success");
-    setTimeout(() => {
-      window.location.href = "/src/pages/login.html";
-    }, 2000);
+    if (!password || !confirmPassword) {
+      showAlert("Please enter all fields", "error");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showAlert("password and reset password not matched!", "error");
+      return;
+    }
+
+    await api.resetPassword(email, password);
+
+    showAlert("password changed successfully!", "success");
+    await wait(3000);
+
+    window.location.href = "/pages/login";
   } catch (err) {
-    showMessage("Network error: " + err.message, "error");
+    showAlert(err.message, "error");
   }
 });
-
-function showMessage(msg, type) {
-  messageBox.innerText = msg;
-  messageBox.className = `message-box ${type}`;
-}
