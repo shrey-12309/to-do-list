@@ -1,40 +1,55 @@
-import { DOMAIN, PORT } from "../../../constants.js";
-import userApi from "../userApi.js";
+import AuthAPI from "../api/AuthAPI.js";
+import TokenManagerClass from "../../../utils/tokenManager.js";
+import { wait, showAlert } from "../toast.js";
 
-const BASE_URL = `${DOMAIN}:${PORT}`;
+const api = new AuthAPI();
+const TokenManager = new TokenManagerClass();
 
-const userApiInstance = new userApi();
-
+const accessToken = localStorage.getItem("accessToken");
+const email = localStorage.getItem("email");
 const loginForm = document.querySelector(".login-form");
 const emailBox = document.querySelector("#email");
 const passwordBox = document.querySelector("#password");
 const resetPasswordLink = document.querySelector(".reset-password-link");
 
-console.log(resetPasswordLink);
+if (accessToken) {
+  window.location.href = "/";
+}
 
 loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
+  try {
+    e.preventDefault();
 
-  const email = emailBox.value.trim();
-  const password = passwordBox.value;
+    const email = emailBox.value.trim();
+    const password = passwordBox.value;
 
-  if (!email || !password) {
-    console.error("Please enter both email and password");
-    return;
+    if (!email || !password) {
+      showAlert("Please enter all fields!", "error");
+      return;
+    }
+
+    const data = await api.loginUser(email, password);
+
+    TokenManager.setTokens(data.accessToken, data.refreshToken);
+    showAlert("User logged In successfully!");
+
+    await wait(3000);
+    window.location.href = "/";
+  } catch (err) {
+    showAlert(err.message, "error");
   }
-
-  const data = await userApiInstance.loginUser(email, password);
-
-  localStorage.setItem("accessToken", data.accessToken);
-  localStorage.setItem("refreshToken", data.refreshToken);
-
-  window.location.href = "/src/index.html";
 });
 
 resetPasswordLink.addEventListener("click", async (e) => {
-  e.preventDefault();
-  const email = emailBox.value.trim();
+  try {
+    e.preventDefault();
 
-  userApiInstance.sendOTP(email);
-  window.location.href = "/src/pages/otp.html?type=reset";
+    await api.sendOTP(email);
+
+    showAlert("OTP sent successfully!");
+    await wait(3000);
+    window.location.href = "/pages/otp?type=reset";
+  } catch (err) {
+    showAlert(err.message, "error");
+  }
 });

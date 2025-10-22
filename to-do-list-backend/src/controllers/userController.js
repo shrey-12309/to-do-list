@@ -10,16 +10,24 @@ export default class UserController {
   registerUser = async (req, res, next) => {
     try {
       const { username, email, password } = req.body
-      const hashedPassword = await bcrypt.hash(password, 10)
 
-      const user = await userModel.findOne({ email })
-      console.log('this is the user', user)
-
-      if (user) {
+      // ✅ Check required fields
+      if (!username || !email || !password) {
         res.status(400)
-        next(new Error(`User already exists! Please login to continue.`))
+        return next(new Error('All fields are required'))
       }
 
+      // ✅ Check if user already exists
+      const existingUser = await userModel.findOne({ email })
+      if (existingUser) {
+        res.status(400)
+        return next(new Error('User already exists! Please login to continue.'))
+      }
+
+      // ✅ Hash password securely
+      const hashedPassword = await bcrypt.hash(password, 10)
+
+      // ✅ Create user
       const newUser = await userModel.create({
         username,
         email,
@@ -27,15 +35,22 @@ export default class UserController {
       })
 
       if (!newUser) {
-        res.status = 400
-        next(new Error(`Unable to register user! Please try again.`))
+        res.status(400)
+        return next(new Error('Unable to register user! Please try again.'))
       }
 
-      res
-        .status(201)
-        .json({ success: true, message: 'User generated successfully' })
-    } catch (e) {
-      next(e)
+      // ✅ Success response
+      res.status(201).json({
+        success: true,
+        message: 'User registered successfully',
+        user: {
+          id: newUser._id,
+          username: newUser.username,
+          email: newUser.email,
+        },
+      })
+    } catch (error) {
+      next(error)
     }
   }
 

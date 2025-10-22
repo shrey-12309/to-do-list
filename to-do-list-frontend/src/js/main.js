@@ -1,7 +1,10 @@
 import "../scss/styles.scss";
-
+import { wait, showAlert } from "./toast.js";
+import TaskAPI from "./api/TaskAPI.js";
+import TokenManagerClass from "../../utils/tokenManager.js";
 import {
   addBtn,
+  functionalBtns,
   confirmBox,
   confirmMsgBox,
   ul,
@@ -9,287 +12,32 @@ import {
   preferenceBox,
   tagsBox,
   sortInput,
-  alertBox,
-  messageBox,
   searchBox,
   searchSelect,
-} from "./selectors.js";
+  saveCancelBtn,
+  logoutBtn,
+  clearTask,
+} from "./mainConstants.js";
 
-import {
-  getTaskList,
-  addTask,
-  deleteTask,
-  updateTask,
-  updateCompletionStatus,
-  sortTask,
-  searchTask,
-} from "./api.js";
-
+const api = new TaskAPI();
+const tokenManager = new TokenManagerClass();
 const accessToken = localStorage.getItem("accessToken");
+
 if (!accessToken) {
-  window.location.href = "/src/pages/login.html";
+  window.location.href = `/pages/login`;
 }
 
-async function addingEventListeners() {
-  ul.addEventListener("click", async (e) => {
-    try {
-      if (e.target.classList.contains("del-btn")) {
-        console.log("delete btn clicked");
-        const result = await showConfirmBox("Do you want to delete the task?");
-        if (result === "yes") {
-          confirmMsgBox.innerText = "";
-          confirmBox.classList.remove("down");
-          const listItem = e.target.closest("li");
-          const deleteId = listItem.id;
-
-          await deleteTask(deleteId);
-
-          const tasks = await getTaskList();
-          displayTask(tasks);
-          showAlert("Task Deleted Successfully!", "success");
-        }
-      }
-    } catch (e) {
-      console.error(e);
-      showAlert("Deletion Error", "error");
-    }
-  });
-
-  ul.addEventListener("click", async (e) => {
-    try {
-      if (e.target.classList.contains("done-btn")) {
-        const listItem = e.target.closest("li");
-        const id = listItem.id;
-
-        await updateCompletionStatus(id);
-        const tasks = await getTaskList();
-        displayTask(tasks);
-      }
-    } catch (e) {
-      showAlert("Unable to mark task as isCompleted", "error");
-    }
-  });
-
-  ul.addEventListener("click", async (e) => {
-    if (e.target.classList.contains("edit-btn")) {
-      console.log("inside edit button");
-      const listItem = e.target.closest("li");
-      const id = listItem.id;
-
-      let tasks = await getTaskList();
-      let taskData = null;
-
-      for (let task of tasks) {
-        if (id === task._id) {
-          taskData = task;
-          break;
-        }
-      }
-
-      if (taskData) {
-        taskBox.value = taskData.task;
-        preferenceBox.value = taskData.preference;
-        tagsBox.value = taskData.tags;
-        taskBox.style.background = "#5E503F";
-        taskBox.style.border = "2px solid #cda97dff";
-        preferenceBox.style.background = "#5E503F";
-        preferenceBox.style.border = "2px solid #cda97dff";
-        tagsBox.style.background = "#5E503F";
-        tagsBox.style.border = "2px solid #cda97dff";
-
-        const addTaskContainer = document.querySelector(".addTask-container");
-        const existing = document.querySelector(".btn-row");
-
-        if (!existing) {
-          const newDiv = document.createElement("div");
-          newDiv.classList.add("row");
-          newDiv.classList.add("g-3");
-          newDiv.classList.add("pt-3");
-          newDiv.classList.add("btn-row");
-
-          newDiv.innerHTML = `<div class="col-md-6 d-grid">
-                        <button id="save-btn" class="btn primary-btn brown-btn">
-                            Save
-                            </button>
-                        </div>
-
-                        <div class="col-md-6 d-grid">
-                            <button id="cancel-btn" class="btn primary-btn brown-btn">
-                            Cancel
-                            </button>
-                        </div>`;
-
-          addTaskContainer.insertAdjacentElement("afterend", newDiv);
-
-          const saveBtn = document.querySelector("#save-btn");
-          const cancelBtn = document.querySelector("#cancel-btn");
-
-          saveBtn.addEventListener("click", async () => {
-            try {
-              const preferenceInput = preferenceBox.value;
-              const taskInput = taskBox.value.trim();
-              const tagsInput = tagsBox.value;
-              const tagsInputArray = tagsInput ? tagsInput.split(",") : [];
-
-              const updatedData = {
-                task: taskInput,
-                preference: preferenceInput,
-                tags: tagsInputArray,
-              };
-
-              await updateTask(id, updatedData);
-
-              restoreInputBoxes();
-
-              const tasks = await getTaskList();
-              displayTask(tasks);
-            } catch (e) {
-              console.error(e);
-              showAlert("Updation error!", "error");
-            }
-          });
-
-          cancelBtn.addEventListener("click", () => {
-            restoreInputBoxes();
-          });
-        }
-      }
-    }
-  });
-}
-
-searchBox.addEventListener("input", searching);
-
-async function searching() {
-  try {
-    const searchText = searchBox.value.trim();
-    const searchFilter = searchSelect.value;
-
-    if (!searchFilter) throw new Error("Please select filter!");
-    console.log("frontend searching", searchText, searchFilter);
-
-    const filteredTasks = await searchTask(searchText, searchFilter);
-
-    console.log("Filtered tasks:", filteredTasks);
-    displayTask(filteredTasks);
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-function restoreInputBoxes() {
-  // console.log("aaagya");
-  const btnBox = document.querySelector(".btn-row");
-
-  taskBox.value = "";
-  preferenceBox.value = "";
-  tagsBox.value = "";
-
-  taskBox.style.background = "white";
-  taskBox.style.border = "none";
-
-  preferenceBox.style.background = "white";
-  preferenceBox.style.border = "none";
-
-  tagsBox.style.background = "white";
-  tagsBox.style.border = "none";
-  if (btnBox) btnBox.remove();
-}
-
-addBtn.addEventListener("click", async () => {
-  const preferenceInput = preferenceBox.value;
-  const taskInput = taskBox.value.trim();
-  const tagsInput = tagsBox.value;
-  const tagsInputArray = tagsInput ? tagsInput.split(",") : [];
-
-  if (taskInput === "") {
-    showAlert("Please enter the task!", "error");
-    return;
-  }
-
-  if (preferenceInput === "") {
-    showAlert("Please select preference!", "error");
-    return;
-  }
-
-  const taskData = {
-    task: taskInput,
-    preference: preferenceInput,
-    tags: tagsInputArray,
-    isCompleted: false,
-  };
-  console.log(taskData);
-
-  await addTask(taskData);
-
-  let tasks = await getTaskList();
-  displayTask(tasks);
-
-  showAlert("Task added successfully!", "success");
-
-  restoreInputBoxes();
-  return;
-});
-
-async function sorting() {
-  try {
-    console.log("inside frontend sorting");
-    const sortValue = sortInput.value;
-    let sortedTasks = await sortTask(sortValue);
-    console.log(sortedTasks);
-
-    displayTask(sortedTasks);
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-sortInput.addEventListener("change", sorting);
-
-export function showAlert(message, method) {
-  messageBox.innerText = message;
-  alertBox.classList.remove("success", "error", "show");
-  alertBox.classList.add("show", method === "success" ? "success" : "error");
-  setTimeout(() => {
-    alertBox.classList.remove("success", "error", "show");
-  }, 3000);
-}
-
-function showConfirmBox(message) {
-  confirmMsgBox.innerHTML = message;
-  confirmBox.classList.add("up");
-
-  return new Promise((resolve) => {
-    const yesBtn = document.querySelector(".yes-btn");
-    const noBtn = document.querySelector(".no-btn");
-
-    yesBtn.onclick = () => {
-      confirmBox.classList.remove("up");
-      confirmBox.classList.add("down");
-      resolve("yes");
-    };
-    noBtn.onclick = () => {
-      confirmBox.classList.remove("up");
-      confirmBox.classList.add("down");
-      resolve("no");
-    };
-  });
-}
 window.onload = async function () {
   try {
-    let tasks = await getTaskList();
-    addingEventListeners();
+    let tasks = await api.getTaskList();
+
+    createFunctionalBtns();
+    updateAnalyticBox(tasks);
     displayTask(tasks);
-  } catch (e) {
-    console.error(e);
-    showAlert("Could not load tasks from server.", "error");
+  } catch (err) {
+    showAlert(err.message, "error");
   }
 };
-
-const functionalBtns = `<div class="functional-btns">
-<img class="del-btn" src="../src/assets/svg/delete.svg" alt="delete-img">
-<img class="edit-btn" src="../src/assets/svg/edit.svg" alt = "edit-img">
-</div>`;
 
 function displayTask(tasks) {
   const ul = document.querySelector("#taskList");
@@ -306,11 +54,11 @@ function displayTask(tasks) {
     let preferenceColor = "black";
 
     if (t.preference.toLowerCase() === "high") {
-      preferenceColor = "#5E503F";
+      preferenceColor = " linear-gradient(135deg, #3e0791ff, #563190ff);";
     } else if (t.preference.toLowerCase() === "medium") {
-      preferenceColor = "#d4aa77ff";
+      preferenceColor = "linear-gradient(135deg, #5537aeff, #a75ee8ff);";
     } else if (t.preference.toLowerCase() === "low") {
-      preferenceColor = "#cda97dff";
+      preferenceColor = "linear-gradient(135deg, #7C3AED, #A78BFA);";
     }
 
     newLi.innerHTML = `
@@ -340,3 +88,268 @@ function displayTask(tasks) {
     ul.appendChild(newLi);
   });
 }
+
+async function createFunctionalBtns() {
+  ul.addEventListener("click", async (e) => {
+    try {
+      if (e.target.classList.contains("del-btn")) {
+        const result = await showConfirmBox("Do you want to delete the task?");
+
+        if (result === "yes") {
+          confirmMsgBox.innerText = "";
+          confirmBox.classList.remove("down");
+          const listItem = e.target.closest("li");
+          const deleteId = listItem.id;
+
+          await api.deleteTask(deleteId);
+
+          const tasks = await api.getTaskList();
+
+          displayTask(tasks);
+          updateAnalyticBox(tasks);
+          showAlert("Task Deleted Successfully!", "success");
+        }
+      }
+    } catch (e) {
+      showAlert("Error in deleting tasks! Please try again.", "error");
+    }
+  });
+
+  ul.addEventListener("click", async (e) => {
+    try {
+      if (e.target.classList.contains("done-btn")) {
+        const listItem = e.target.closest("li");
+        const id = listItem.id;
+
+        await api.updateCompletionStatus(id);
+
+        const tasks = await api.getTaskList();
+
+        displayTask(tasks);
+        updateAnalyticBox(tasks);
+      }
+    } catch (e) {
+      showAlert("Unable to mark task as isCompleted", "error");
+    }
+  });
+
+  ul.addEventListener("click", async (e) => {
+    if (e.target.classList.contains("edit-btn")) {
+      const listItem = e.target.closest("li");
+      const id = listItem.id;
+
+      let tasks = await api.getTaskList();
+      let taskData = null;
+
+      for (let task of tasks) {
+        if (id === task._id) {
+          taskData = task;
+          break;
+        }
+      }
+
+      if (taskData) {
+        taskBox.value = taskData.task;
+        preferenceBox.value = taskData.preference;
+        tagsBox.value = taskData.tags;
+
+        taskBox.style.background = "#dac2f0ff";
+        taskBox.style.border = "2px solid #c083f6ff";
+
+        preferenceBox.style.background = "#dac2f0ff";
+        preferenceBox.style.border = "2px solid #c083f6ff";
+
+        tagsBox.style.background = "#dac2f0ff";
+        tagsBox.style.border = "2px solid #c083f6ff";
+
+        const addTaskContainer = document.querySelector(".addTask-container");
+        const existing = document.querySelector(".btn-row");
+
+        if (!existing) {
+          const newDiv = document.createElement("div");
+          newDiv.classList.add("row");
+          newDiv.classList.add("g-3");
+          newDiv.classList.add("pt-3");
+          newDiv.classList.add("btn-row");
+
+          newDiv.innerHTML = saveCancelBtn;
+
+          addTaskContainer.insertAdjacentElement("afterend", newDiv);
+
+          const saveBtn = document.querySelector("#save-btn");
+          const cancelBtn = document.querySelector("#cancel-btn");
+
+          saveBtn.addEventListener("click", async () => {
+            try {
+              const preferenceInput = preferenceBox.value;
+              const taskInput = taskBox.value.trim();
+              const tagsInput = tagsBox.value;
+              const tagsInputArray = tagsInput ? tagsInput.split(",") : [];
+
+              const updatedData = {
+                task: taskInput,
+                preference: preferenceInput,
+                tags: tagsInputArray,
+              };
+
+              await api.updateTask(id, updatedData);
+
+              restoreInputBoxes();
+
+              const tasks = await api.getTaskList();
+
+              displayTask(tasks);
+            } catch (err) {
+              showAlert(err.message, "error");
+            }
+          });
+
+          cancelBtn.addEventListener("click", () => {
+            restoreInputBoxes();
+          });
+        }
+      }
+    }
+  });
+}
+
+async function searching() {
+  try {
+    const searchText = searchBox.value.trim();
+    const searchFilter = searchSelect.value;
+
+    if (!searchFilter) {
+      showAlert("Please select filter", "error");
+      return;
+    }
+
+    const filteredTasks = await api.searchTask(searchText, searchFilter);
+    displayTask(filteredTasks);
+  } catch {
+    showAlert("Some error occured while filtering! Please try again", "error");
+  }
+}
+
+searchBox.addEventListener("input", searching);
+
+function restoreInputBoxes() {
+  const btnBox = document.querySelector(".btn-row");
+  taskBox.value = "";
+  preferenceBox.value = "";
+  tagsBox.value = "";
+
+  taskBox.style.background = "white";
+  taskBox.style.border = "none";
+
+  preferenceBox.style.background = "white";
+  preferenceBox.style.border = "none";
+
+  tagsBox.style.background = "white";
+  tagsBox.style.border = "none";
+
+  if (btnBox) btnBox.remove();
+}
+
+addBtn.addEventListener("click", async () => {
+  try {
+    const preferenceInput = preferenceBox.value;
+    const taskInput = taskBox.value.trim();
+    const tagsInput = tagsBox.value;
+    const tagsInputArray = tagsInput ? tagsInput.split(",") : [];
+
+    if (taskInput === "") {
+      showAlert("Please enter the task!", "error");
+      return;
+    }
+
+    if (preferenceInput === "") {
+      showAlert("Please select preference!", "error");
+      return;
+    }
+
+    const taskData = {
+      task: taskInput,
+      preference: preferenceInput,
+      tags: tagsInputArray,
+      isCompleted: false,
+    };
+
+    await api.addTask(taskData);
+    let tasks = await api.getTaskList();
+
+    displayTask(tasks);
+    updateAnalyticBox(tasks);
+
+    showAlert("Task added successfully!", "success");
+
+    restoreInputBoxes();
+    return;
+  } catch (e) {
+    showAlert(e.message, "error");
+  }
+});
+
+async function sorting() {
+  try {
+    const sortValue = sortInput.value;
+    let sortedTasks = await api.sortTask(sortValue);
+
+    displayTask(sortedTasks);
+  } catch (err) {
+    showAlert(err.message, "error");
+  }
+}
+
+sortInput.addEventListener("change", sorting);
+
+function updateAnalyticBox(tasks) {
+  const total = tasks.length;
+  const completed = tasks.filter((t) => t.isCompleted === true).length;
+  const pending = total - completed;
+
+  document.querySelector(".total-tasks .analytic-body").innerText = total;
+  document.querySelector(".completed-tasks .analytic-body").innerText =
+    completed;
+  document.querySelector(".pending-tasks .analytic-body").innerText = pending;
+}
+
+function showConfirmBox(message) {
+  confirmMsgBox.innerHTML = message;
+  confirmBox.classList.add("up");
+
+  return new Promise((resolve) => {
+    const yesBtn = document.querySelector(".yes-btn");
+    const noBtn = document.querySelector(".no-btn");
+
+    yesBtn.onclick = () => {
+      confirmBox.classList.remove("up");
+      confirmBox.classList.add("down");
+      resolve("yes");
+    };
+    noBtn.onclick = () => {
+      confirmBox.classList.remove("up");
+      confirmBox.classList.add("down");
+      resolve("no");
+    };
+  });
+}
+
+logoutBtn.addEventListener("click", () => {
+  try {
+    tokenManager.clearTokens();
+    window.location.href = "/pages/login";
+  } catch (e) {
+    showAlert("Unable to logout user! Please try after sometime");
+  }
+});
+
+clearTask.addEventListener("click", async () => {
+  try {
+    await api.clearTask();
+    showAlert("Task cleared successfully!");
+
+    displayTask([]);
+  } catch (e) {
+    showAlert(e.message);
+  }
+});
