@@ -1,95 +1,140 @@
-import jwt from 'jsonwebtoken'
+import { userModel } from '../models/userDB.js'
 import bcrypt from 'bcrypt'
-import dotenv from 'dotenv'
-import User from '../models/userDB.js'
-import { JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY } from '../../constants.js'
-import Otp from '../models/userModel.js'
-import { sendOTP } from './otpController.js'
+import {
+  getAccessToken,
+  getRefreshToken,
+  verifyRefreshToken,
+} from '../utils/jwtUtils.js'
 
-dotenv.config()
-
-export default class AuthenticationController {
+export default class UserController {
   registerUser = async (req, res, next) => {
     try {
-      const { email, password, username, role } = req.body
-      const hashedPass = await bcrypt.hash(password, 10)
-      const existingUser = await User.findOne({ email })
-      if (existingUser) {
-        return res.status(400).json({
-          success: false,
-          message: 'User already exists',
-        })
-      }
-      const user = new User({ email, password: hashedPass, username, role })
-      await user.save()
+      const { username, email, password } = req.body
+      const hashedPassword = await bcrypt.hash(password, 10)
 
-      sendOTP()
+      const user = await userModel.findOne({ email })
+      console.log('this is the user', user)
 
-      const recentOtp = await Otp.findOne({ email }).sort({ createdAt: -1 })
-      if (!recentOtp || recentOtp.otp !== otp) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid or expired OTP',
-        })
+      if (user) {
+        res.status(400)
+        next(new Error(`User already exists! Please login to continue.`))
       }
 
-      res.status(201).json({ success: true, user })
-    } catch (error) {
-      next(error)
+      const newUser = await userModel.create({
+        username,
+        email,
+        password: hashedPassword,
+      })
+
+      if (!newUser) {
+        res.status = 400
+        next(new Error(`Unable to register user! Please try again.`))
+      }
+
+      res
+        .status(201)
+        .json({ success: true, message: 'User generated successfully' })
+    } catch (e) {
+      next(e)
     }
   }
 
   loginUser = async (req, res, next) => {
     try {
-      const secretKey = JWT_SECRET_KEY
-      const refreshSecretKey = JWT_REFRESH_SECRET_KEY
       const { email, password } = req.body
-      const user = await User.findOne({ email })
+
+      const user = await userModel.findOne({ email })
 
       if (!user) {
-        res.status(404)
-        throw new Error('User not found!')
-      }
-
-      const passwordMatched = await bcrypt.compare(password, user.password)
-
-      if (!passwordMatched) {
         res.status(401)
-        throw new Error('Authentication failed, password not matched')
+        next(new Error(`User not found! Please register to continue`))
       }
 
-      const accessToken = jwt.sign({ userId: user._id }, secretKey, {
-        expiresIn: '1h',
-      })
+      if (!user.isVerified) {
+        res.status(401)
+        res.redirect = '/pages/otp?type=reset'
+        next(
+          new Error(
+            `Account not verified. Please verify your email before logging in.`
+          )
+        )
+      }
 
-      const refreshToken = jwt.sign({ userId: user._id }, refreshSecretKey, {
-        expiresIn: '60d',
-      })
+      const passwordMatch = await bcrypt.compare(password, user.password)
 
+      if (!passwordMatch) {
+        console.log('password not matched invoked!')
+        res.status(401)
+        next(new Error(`Password not matched, Please try again`))
+      }
+
+      const accessToken = await getAccessToken(user)
+      const refreshToken = await getRefreshToken(user)
+
+      user.isVerified = true
       await user.save()
 
-      res.status(200).json({ accessToken, refreshToken, user })
-    } catch (error) {
-      next(error)
+      res.status(200).json({ user, accessToken, refreshToken })
+    } catch (e) {
+      console.log(e)
+      next(e)
     }
   }
 
-  logoutUser = async (req, res, next) => {
+  refreshToken = async (req, res, next) => {
     try {
-      const { userId } = req.body
+      const header = req.headers['refreshtoken']
 
-      const user = await User.findById(userId)
+      const refreshToken = header.split(' ')[1]
+
+      const payload = await verifyRefreshToken(refreshToken)
+
+      const user = await userModel.findById(payload.userId)
+
+      if (!user) {
+        throw new Error('user not found', { statusCode: 404 })
+      }
+
+      const newAccessToken = await getAccessToken(user)
+      const newRefreshToken = await getRefreshToken(user)
+
+      return res
+        .status(200)
+        .json({ refreshToken: newRefreshToken, accessToken: newAccessToken })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  resetPassword = async (req, res, next) => {
+    try {
+      const { email, password } = req.body
+      console.log(email, password)
+
+      if (!email || !password) {
+        res.status(400)
+        next(new Error(`Please fill all fields!`))
+      }
+
+      const user = await userModel.findOne({ email })
 
       if (!user) {
         res.status(404)
-        throw new Error('User not found')
+        next(new Error(`User with this email does not exist`))
       }
 
+      const saltRounds = 10
+      const hashedPassword = await bcrypt.hash(password, saltRounds)
+
+      user.password = hashedPassword
       await user.save()
 
-      res.status(200).json({ message: 'Logged out successfully' })
-    } catch (error) {
-      next(error)
+      return res.status(200).json({
+        success: true,
+        message: 'Password has been successfully reset',
+      })
+    } catch (e) {
+      next(e)
     }
   }
 }

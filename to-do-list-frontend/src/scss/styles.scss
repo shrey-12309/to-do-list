@@ -1,5 +1,5 @@
 // Import all of Bootstrap’s CSS
-@import "bootstrap/scss/bootstrap";
+@use "bootstrap" as *;
 
 * {
   margin: 0;
@@ -15,8 +15,15 @@ body {
   max-height: 100vh;
   background: linear-gradient(135deg, #a9927d, #5e503f, #0a0908);
 
+  .logout {
+    button {
+      background: linear-gradient(135deg, #49111c, #5e503f);
+      color: white;
+      padding: 0.5rem;
+    }
+  }
+
   .left-section {
-    // background-color: #a9927d;
     background: linear-gradient(135deg, #e6ccb2, #7f5539, #6c584c);
 
     border: 1px solid black;

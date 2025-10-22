@@ -2,7 +2,7 @@ import { showAlert } from "./main.js";
 
 async function getTaskList() {
   try {
-    const res = await fetch("http://localhost:8000");
+    const res = await fetchAuth("http://localhost:8000");
     if (!res.ok) throw new Error("Failed to fetch tasks from backend.");
     return await res.json();
   } catch (e) {
@@ -13,7 +13,7 @@ async function getTaskList() {
 
 async function addTask(taskData) {
   try {
-    const res = await fetch("http://localhost:8000/", {
+    const res = await fetchAuth("http://localhost:8000/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(taskData),
@@ -27,7 +27,7 @@ async function addTask(taskData) {
 
 async function deleteTask(id) {
   try {
-    const res = await fetch(`http://localhost:8000/${id}`, {
+    const res = await fetchAuth(`http://localhost:8000/${id}`, {
       method: "DELETE",
     });
     if (!res.ok) throw new Error("Failed to delete task");
@@ -40,7 +40,7 @@ async function deleteTask(id) {
 
 async function updateTask(id, updatedData) {
   try {
-    const res = await fetch(`http://localhost:8000/${id}`, {
+    const res = await fetchAuth(`http://localhost:8000/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedData),
@@ -56,7 +56,7 @@ async function updateTask(id, updatedData) {
 
 async function updateCompletionStatus(id) {
   try {
-    const res = await fetch(`http://localhost:8000/${id}`, {
+    const res = await fetchAuth(`http://localhost:8000/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
@@ -71,7 +71,7 @@ async function updateCompletionStatus(id) {
 
 async function searchTask(searchText, searchFilter) {
   try {
-    const res = await fetch(
+    const res = await fetchAuth(
       `http://localhost:8000/search?searchText=${searchText}&searchFilter=${searchFilter}`
     );
     if (!res.ok) {
@@ -86,7 +86,7 @@ async function searchTask(searchText, searchFilter) {
 
 async function sortTask(sortFilter) {
   try {
-    const res = await fetch(
+    const res = await fetchAuth(
       `http://localhost:8000/sort?sortFilter=${sortFilter}`
     );
     if (!res.ok) {
@@ -95,8 +95,13 @@ async function sortTask(sortFilter) {
     return await res.json();
   } catch (e) {
     console.log(e);
-    return res.status(500).json({ error: e,message:"error found" });
+    return res.status(500).json({ error: e, message: "error found" });
   }
+}
+
+async function refreshToken(refreshKey) {
+  try {
+  } catch {}
 }
 
 export {

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <link rel="stylesheet" href="../scss/login.scss" />
+  </head>
+  <body>
+    <div class="welcome-message">
+      <h1>Welcome back, let's login to sort things</h1>
+    </div>
+
+    <div class="login-container">
+      <form class="login-form">
+        <h2>Login</h2>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+
+        <button type="submit">Login</button>
+
+        <p class="signup-text">
+          Not registered yet?
+          <a href="http://localhost:5178/src/pages/signup.html">Sign up</a>
+        </p>
+        <p class="reset-password-link">
+          Forgot Password?
+          <a href="http://localhost:5178/src/pages/otp.html">Reset Password</a>
+        </p>
+      </form>
+    </div>
+    <script type="module" src="../../src/js/login/login.js"></script>
+  </body>
+</html>

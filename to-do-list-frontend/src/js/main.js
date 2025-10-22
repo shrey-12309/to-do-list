@@ -1,4 +1,4 @@
-import "../src/scss/styles.scss";
+import "../scss/styles.scss";
 
 import {
   addBtn,
@@ -24,6 +24,11 @@ import {
   sortTask,
   searchTask,
 } from "./api.js";
+
+const accessToken = localStorage.getItem("accessToken");
+if (!accessToken) {
+  window.location.href = "/src/pages/login.html";
+}
 
 async function addingEventListeners() {
   ul.addEventListener("click", async (e) => {

@@ -1,100 +1,85 @@
-import OTP from '../models/otp.js'
+import { userModel } from '../models/userDB.js'
+import { otpModel } from '../models/otpDB.js'
 import otpGenerator from 'otp-generator'
-import mailSender from '../utility/mailSender.js'
+import { mailSender } from '../utils/mailSender.js'
 
-export async function sendOTP(req, res) {
-  try {
-    const { email } = req.body
-    if (!email) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Email is required' })
-    }
+export default class OtpController {
+  sendOTP = async (req, res, next) => {
+    try {
+      const { email } = req.body
 
-    let otp = otpGenerator.generate(6, {
-      upperCaseAlphabets: false,
-      lowerCaseAlphabets: false,
-      specialChars: false,
-    })
-
-    while (await OTP.findOne({ 'otps.code': otp })) {
-      otp = otpGenerator.generate(6, { upperCaseAlphabets: false })
-    }
-
-    let otpDoc = await OTP.findOne({ email })
-
-    if (!otpDoc) {
-      otpDoc = new OTP({ email, otps: [] })
-    } else if (!Array.isArray(otpDoc.otps)) {
-      otpDoc.otps = []
-    }
-
-    otpDoc.otps.push({ code: otp })
-    await otpDoc.save()
-
-    await mailSender(
-      email,
-      'Verification Email',
-      `<h1>Please confirm your OTP</h1>
-       <p>Your new OTP code is: <b>${otp}</b></p>
-       <p>It will expire in 5 minutes.</p>`
-    )
-
-    console.log(`✅ OTP sent to ${email}: ${otp}`)
-
-    return res.status(200).json({
-      success: true,
-      message: 'OTP sent successfully',
-    })
-  } catch (err) {
-    console.error('Error sending OTP:', err)
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to send OTP',
-    })
-  }
-}
-
-export async function verifyOTP(req, res) {
-  try {
-    const { email, otp } = req.body
-    if (!email || !otp) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'Email and OTP are required' })
-    }
-
-    const otpDoc = await OTP.findOne({ email })
-    if (!otpDoc || otpDoc.otps.length === 0) {
-      return res
-        .status(400)
-        .json({ success: false, message: 'No OTPs found for this email' })
-    }
-
-    const latestOTP = otpDoc.otps[otpDoc.otps.length - 1]
-
-    const now = Date.now()
-    const diff = (now - latestOTP.createdAt.getTime()) / 1000 // in seconds
-    if (diff > 300) {
-      return res.status(400).json({
-        success: false,
-        message: 'OTP expired, please request a new one',
+      let otp = otpGenerator.generate(6, {
+        upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
       })
-    }
 
-    if (latestOTP.code !== otp) {
-      return res.status(400).json({ success: false, message: 'Invalid OTP' })
-    }
+      let otpDoc = await otpModel.findOne({ email })
 
-    return res.status(200).json({
-      success: true,
-      message: 'OTP verified successfully',
-    })
-  } catch (error) {
-    console.error('OTP verification error:', error)
-    return res.status(500).json({
-      success: false,
-      message: 'Server error during OTP verification',
-    })
+      if (!otpDoc) {
+        otpDoc = new otpModel({ email, otp: [] })
+      }
+
+      otpDoc.otp.push(otp)
+      await otpDoc.save()
+
+      await mailSender(
+        email,
+        'Please confirm your OTP',
+        `<p>Your OTP is: <strong>${otp}</strong></p>`
+      )
+
+      res.status(200).json({ success: true, message: 'OTP sent successfully' })
+    } catch (e) {
+      next(e)
+    }
+  }
+
+  async verifyOTP(req, res, next) {
+    try {
+      const { email, otp } = req.body
+
+      if (!email || !otp) {
+        res.status(400)
+        return next(new Error(`OTP is required`))
+      }
+
+      const otpDoc = await otpModel.findOne({ email })
+
+      if (!otpDoc || otpDoc.otp.length === 0) {
+        res.status(400)
+        return next(new Error(`OTP not found! Please resend OTP`))
+      }
+
+      const latestOTP = otpDoc.otp[otpDoc.otp.length - 1]
+
+      const now = Date.now()
+      const otpCreated = new Date(otpDoc.updatedAt).getTime()
+      const diff = (now - otpCreated) / 1000
+
+      if (diff > 300) {
+        res.status(403)
+        return next(new Error(`OTP expired, please request a new one`))
+      }
+
+      if (latestOTP !== otp) {
+        res.status(401)
+        return next(new Error(`Invalid OTP`))
+      }
+
+      const user = await userModel.findOne({ email })
+
+      if (user) {
+        user.isVerified = true
+        await user.save()
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: 'OTP verified successfully',
+      })
+    } catch (e) {
+      next(e)
+    }
   }
 }
