@@ -126,4 +126,46 @@ export default class AuthAPI {
       throw err;
     }
   };
+  updateProfile = async (form) => {
+    try {
+      const formData = new FormData(form);
+
+      const res = await fetch(
+        `${BASE_URL}/user/auth/update-profile`,
+        formData,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "unable to upload profile image!");
+      }
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  fetchUserDetail = async () => {
+    const res = await fetch(`${BASE_URL}/user/auth/profile`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Unable to load user details!");
+    }
+
+    console.log("THIS IS OUTPUT in FETCH USER DETAIL", data);
+    return data.userData;
+  };
 }

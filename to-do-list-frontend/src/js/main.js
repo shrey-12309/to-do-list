@@ -16,6 +16,7 @@ import {
   searchSelect,
   saveCancelBtn,
   logoutBtn,
+  profileBtn,
 } from "./mainConstants.js";
 
 const api = new TaskAPI();
@@ -328,5 +329,13 @@ logoutBtn.addEventListener("click", () => {
     window.location.href = "/pages/login";
   } catch (e) {
     showAlert("Unable to logout user! Please try after sometime");
+  }
+});
+
+profileBtn.addEventListener("click", () => {
+  try {
+    window.location.href = "/src/pages/profile";
+  } catch (e) {
+    showAlert("Unable to view details");
   }
 });

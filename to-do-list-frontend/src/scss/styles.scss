@@ -15,7 +15,8 @@ body {
   max-height: 100vh;
   background: linear-gradient(135deg, #a9927d, #5e503f, #0a0908);
 
-  .logout {
+  .logout,
+  .profile {
     button {
       background: linear-gradient(135deg, #49111c, #5e503f);
       color: white;

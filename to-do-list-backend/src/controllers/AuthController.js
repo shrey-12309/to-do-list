@@ -234,4 +234,26 @@ export default class UserController {
       next(err)
     }
   }
+  fetchUserDetail = async (req, res, next) => {
+    try {
+      const userId = req.user
+      console.log(userId)
+      const user = await userModel.findById(userId).select('-password')
+
+      if (!user) {
+        res.status(404)
+        return next(new Error('User not found'))
+      }
+
+      console.log('this is user', user)
+
+      res.status(200).json({
+        success: true,
+        message: 'User details fetched successfully',
+        userData: user,
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
 }

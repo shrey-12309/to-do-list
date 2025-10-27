@@ -31,5 +31,6 @@ userRouter.post(
   upload.single('avatar'),
   userInstance.updateProfile
 )
+userRouter.get('/profile', verifyToken, userInstance.fetchUserDetail)
 
 export default userRouter
