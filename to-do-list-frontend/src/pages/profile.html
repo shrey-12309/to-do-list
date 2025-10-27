@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile</title>
+    <link rel="stylesheet" href="../scss/profile.scss" />
+  </head>
+  <body>
+    <div class="container">
+      <section class="top-section">
+        <h1>User Profile</h1>
+      </section>
+
+      <section class="profile-section">
+        <div class="profile-card">
+          <div class="profile-pic-container">
+            <img
+              src="/svgs/default-profile.svg"
+              alt="Profile Picture"
+              class="profile-pic"
+              id="profilePic"
+            />
+            <label for="profilePicInput" class="change-pic-label">
+              Change Profile Picture
+            </label>
+            <input type="file" id="profilePicInput" accept="image/*" hidden />
+          </div>
+
+          <div class="user-info">
+            <h2>User Info</h2>
+            <p><strong>Name:</strong> <span id="userName"></span></p>
+            <p>
+              <strong>Email:</strong>
+              <span id="userEmail"></span>
+            </p>
+          </div>
+
+          <div class="profile-actions">
+            <button class="btn change-password">Change Password</button>
+            <button class="btn logout">Logout</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="../../src/js/profile/profile.js"></script>
+  </body>
+</html>

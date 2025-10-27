@@ -35,7 +35,7 @@ registerForm.addEventListener("submit", async (e) => {
 
     localStorage.setItem("email", email);
 
-    await api.sendOTP(email);
+    await api.sendOtp(email);
     showAlert("OTP sent successfully");
     await wait(3000);
 

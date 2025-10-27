@@ -1,19 +1,30 @@
-import express from 'express';
-import taskController from '../controllers/taskController.js';
+import express from 'express'
+import TaskController from '../controllers/taskController.js'
+import TaskValidation from '../validators/middlewares/taskValidation.js'
 
-import toDoValidations from '../validators/middlewares/taskValidation.js';
-const validationInstance = new toDoValidations();
-const taskControllerInstance = new taskController();
+const validationInstance = new TaskValidation()
+const taskInstance = new TaskController()
+const taskRouter = express.Router()
 
+taskRouter.get('/', taskInstance.getAllTasks)
 
-const todoRouter = express.Router();
+taskRouter.post(
+  '/',
+  validationInstance.validateRequest,
+  taskInstance.addNewTask
+)
 
-todoRouter.get('/', taskControllerInstance.getAllTasks);
-todoRouter.post('/', validationInstance.validateRequest, taskControllerInstance.addNewTask);
-todoRouter.patch('/:id', taskControllerInstance.updateCompletionStatus);
-todoRouter.put('/:id', validationInstance.updateRequest, taskControllerInstance.updateTask);
-todoRouter.delete('/:id', taskControllerInstance.deleteTask);
-todoRouter.get('/search', taskControllerInstance.searchTask);
-todoRouter.get('/sort', taskControllerInstance.sortTask);
+taskRouter.patch('/:id', taskInstance.updateCompletionStatus)
 
-export default todoRouter;
+taskRouter.put(
+  '/:id',
+  validationInstance.updateRequest,
+  taskInstance.updateTask
+)
+
+taskRouter.delete('/:id', taskInstance.deleteTask)
+taskRouter.get('/search', taskInstance.searchTask)
+taskRouter.get('/sort', taskInstance.sortTask)
+taskRouter.delete('/', taskInstance.clearTask)
+
+export default taskRouter

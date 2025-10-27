@@ -1,9 +1,9 @@
 import AuthAPI from "../api/AuthAPI.js";
-import TokenManagerClass from "../../../utils/tokenManager.js";
+import TokenManager from "../../../utils/tokenManager.js";
 import { wait, showAlert } from "../toast.js";
 
 const api = new AuthAPI();
-const TokenManager = new TokenManagerClass();
+const tokenInstance = new TokenManager();
 
 const accessToken = localStorage.getItem("accessToken");
 const email = localStorage.getItem("email");
@@ -16,7 +16,25 @@ if (accessToken) {
   window.location.href = "/";
 }
 
-loginForm.addEventListener("submit", async (e) => {
+loginForm.addEventListener("submit", userLogin);
+resetPasswordLink.addEventListener("click", resetPassword);
+
+async function resetPassword(e) {
+  try {
+    e.preventDefault();
+
+    await api.sendOtp(email);
+
+    showAlert("OTP sent successfully!");
+    await wait(3000);
+
+    window.location.href = "/pages/otp?type=reset";
+  } catch (err) {
+    showAlert(err.message, "error");
+  }
+}
+
+async function userLogin(e) {
   try {
     e.preventDefault();
 
@@ -30,26 +48,18 @@ loginForm.addEventListener("submit", async (e) => {
 
     const data = await api.loginUser(email, password);
 
-    TokenManager.setTokens(data.accessToken, data.refreshToken);
+    tokenInstance.setTokens(data.accessToken, data.refreshToken);
     showAlert("User logged In successfully!");
 
     await wait(3000);
     window.location.href = "/";
   } catch (err) {
     showAlert(err.message, "error");
+
+    if (err.message.includes("Account not verified")) {
+      await wait(3000);
+      await api.sendOtp(email);
+      window.location.href = "/pages/otp?type=login";
+    }
   }
-});
-
-resetPasswordLink.addEventListener("click", async (e) => {
-  try {
-    e.preventDefault();
-
-    await api.sendOTP(email);
-
-    showAlert("OTP sent successfully!");
-    await wait(3000);
-    window.location.href = "/pages/otp?type=reset";
-  } catch (err) {
-    showAlert(err.message, "error");
-  }
-});
+}

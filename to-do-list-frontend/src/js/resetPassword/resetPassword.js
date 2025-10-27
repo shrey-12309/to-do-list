@@ -4,16 +4,18 @@ import { wait, showAlert } from "../toast.js";
 const api = new AuthAPI();
 const accessToken = localStorage.getItem("accessToken");
 
-if (accessToken) {
-  window.location.href = "/";
-}
+// if (accessToken) {
+//   window.location.href = "/";
+// }
 
 const resetForm = document.querySelector(".reset-form");
 const passwordBox = document.querySelector("#password");
 const confirmPasswordBox = document.querySelector("#confirm-password");
 const email = localStorage.getItem("email");
 
-resetForm.addEventListener("submit", async (e) => {
+resetForm.addEventListener("submit", resetPassword);
+
+async function resetPassword(e) {
   try {
     e.preventDefault();
     const password = passwordBox.value;
@@ -38,4 +40,4 @@ resetForm.addEventListener("submit", async (e) => {
   } catch (err) {
     showAlert(err.message, "error");
   }
-});
+}

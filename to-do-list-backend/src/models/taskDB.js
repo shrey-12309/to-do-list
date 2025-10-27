@@ -1,33 +1,32 @@
-import { mongoose } from 'mongoose'
+import mongoose from 'mongoose'
 
-const todoSchema = new mongoose.Schema({
+const todoSchema = new mongoose.Schema(
+  {
     task: {
-        type: String,
-        unique: true,
-        require: true
+      type: String,
+      unique: true,
+      required: true,
     },
     preference: {
-        type: String,
-        require: true
+      type: String,
+      required: true,
     },
     tags: {
-        type: Array(String)
+      type: [String],
     },
     isCompleted: {
-        type: Boolean,
-        required: true
+      type: Boolean,
+      required: true,
+      default: false,
     },
-    // createdAt: {
-    //     type: Date,
-    //     require: true
-    // },
-    // updatedAt: {
-    //     type: Date,
-    //     require: true
-    // },
-},
-    { timestamps: true }
-);
-const TaskDb = mongoose.model('Task', todoSchema);
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+  },
+  { timestamps: true }
+)
 
-export default TaskDb;
+const taskDB = mongoose.model('Task', todoSchema)
+export default taskDB

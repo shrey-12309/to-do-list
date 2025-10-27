@@ -1,12 +1,11 @@
-import TaskDb from '../models/taskDB.js'
+import taskDB from '../models/taskDB.js'
 
 export default class TaskController {
   getAllTasks = async (req, res, next) => {
     try {
       const userId = req.user
 
-      const data = await TaskDb.find({})
-      console.log('this is frontend data', data)
+      const data = await taskDB.find({ user: userId })
 
       if (!data) {
         res.status(404)
@@ -23,7 +22,7 @@ export default class TaskController {
     try {
       const user = req.user
 
-      await TaskDb.create({ user, ...req.body })
+      await taskDB.create({ user, ...req.body })
 
       res
         .status(201)
@@ -36,19 +35,20 @@ export default class TaskController {
   updateCompletionStatus = async (req, res, next) => {
     try {
       const { id } = req.params
+
       if (!id) {
         res.status(400)
         return next(new Error('Bad Request, Task ID is missing'))
       }
 
-      const prevItem = await TaskDb.findById(id)
+      const prevItem = await taskDB.findById(id)
 
       if (!prevItem) {
         res.status(404)
         return next(new Error(`Unable to find task!`))
       }
 
-      const updatedItem = await TaskDb.findByIdAndUpdate(
+      const updatedItem = await taskDB.findByIdAndUpdate(
         id,
         { $set: { isCompleted: !prevItem.isCompleted } },
         { new: true }
@@ -70,7 +70,8 @@ export default class TaskController {
   updateTask = async (req, res, next) => {
     try {
       const { id } = req.params
-      const updatedTask = await TaskDb.findByIdAndUpdate(
+
+      const updatedTask = await taskDB.findByIdAndUpdate(
         id,
         { $set: req.body },
         { new: true }
@@ -92,14 +93,16 @@ export default class TaskController {
   deleteTask = async (req, res, next) => {
     try {
       const { id } = req.params
-      const delItem = await TaskDb.findByIdAndDelete(id)
+      const delItem = await taskDB.findByIdAndDelete(id)
 
       if (!delItem) {
         res.status(404)
         return next(new Error(`Item to be deleted not found`))
       }
 
-      res.status(204).json({ message: `task deleted successfully!` })
+      res
+        .status(204)
+        .json({ success: true, message: `task deleted successfully!` })
     } catch (e) {
       next(e)
     }
@@ -113,18 +116,18 @@ export default class TaskController {
       let filteredTasks = null
 
       if (sortFilter === 'pending') {
-        filteredTasks = await TaskDb.find({
+        filteredTasks = await taskDB.find({
           $and: [{ isCompleted: false }, { user }],
         })
       } else if (sortFilter === 'completed') {
-        filteredTasks = await TaskDb.find({
+        filteredTasks = await taskDB.find({
           $and: [{ isCompleted: true }, { user }],
         })
       }
 
       if (!filteredTasks) {
         res.status(404)
-        next(new Error(`Unable to fetch sorted task!`))
+        return next(new Error(`Unable to fetch sorted task!`))
       }
 
       res.status(200).json({ success: true, filteredTasks })
@@ -140,7 +143,7 @@ export default class TaskController {
 
       searchText = searchText.toLowerCase()
 
-      const filteredTasks = await TaskDb.find({
+      const filteredTasks = await taskDB.find({
         $and: [
           {
             $or: [
@@ -167,14 +170,15 @@ export default class TaskController {
   clearTask = async (req, res, next) => {
     try {
       const user = req.user
-      const del = await TaskDb.deleteMany({ user })
+
+      const del = await taskDB.deleteMany({ user })
 
       if (!del) {
         res.status(404)
         next(new Error('Unable to delete all tasks!'))
       }
 
-      res.status(200).json({
+      res.status(204).json({
         message: 'All tasks deleted successfully!',
         success: true,
       })

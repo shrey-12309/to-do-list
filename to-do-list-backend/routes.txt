@@ -1,0 +1,17 @@
+Domain :- http://127.0.0.1:8000
+
+User 
+Login - http://127.0.0.1:8000/user/auth/login
+Register -http://127.0.0.1:8000/user/auth/register
+Verify Otp-http://127.0.0.1:8000/user/auth/verify-otp
+send otp-http://127.0.0.1:8000/user/auth/send-otp
+resetPassword -http://127.0.0.1:8000/user/auth/reset-password
+Refresh Token -http://127.0.0.1:8000/user/auth/refresh-token
+
+Task 
+Get -http://127.0.0.1:8000/
+add - http://127.0.0.1:8000/
+update - http://127.0.0.1:8000/
+delete - http://127.0.0.1:8000/
+search - http://127.0.0.1:8000/search
+sort -http://127.0.0.1:8000/sort

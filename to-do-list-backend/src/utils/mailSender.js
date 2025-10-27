@@ -1,6 +1,5 @@
 import nodemailer from 'nodemailer'
 import { MAIL_HOST, MAIL_PASS, MAIL_USER } from '../../constants.js'
-console.log(MAIL_HOST, MAIL_PASS, MAIL_USER)
 
 const mailSender = async (email, title, body) => {
   try {

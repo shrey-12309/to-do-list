@@ -7,7 +7,7 @@ const BASE_URL = `${DOMAIN}:${PORT}`;
 export default class AuthAPI {
   registerUser = async (username, email, password) => {
     try {
-      const res = await fetch(`${BASE_URL}/user/register`, {
+      const res = await fetch(`${BASE_URL}/user/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
@@ -26,7 +26,7 @@ export default class AuthAPI {
 
   loginUser = async (email, password) => {
     try {
-      const res = await fetch(`${BASE_URL}/user/login`, {
+      const res = await fetch(`${BASE_URL}/user/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -45,7 +45,7 @@ export default class AuthAPI {
 
   verifyOtp = async (email, otp) => {
     try {
-      const res = await fetch(`${BASE_URL}/otp/verifyOtp`, {
+      const res = await fetch(`${BASE_URL}/user/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
@@ -63,9 +63,9 @@ export default class AuthAPI {
     }
   };
 
-  sendOTP = async (email) => {
+  sendOtp = async (email) => {
     try {
-      const res = await fetch(`${BASE_URL}/otp/sendOTP`, {
+      const res = await fetch(`${BASE_URL}/user/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -82,7 +82,7 @@ export default class AuthAPI {
 
   resetPassword = async (email, password) => {
     try {
-      const res = await fetch(`${BASE_URL}/user/resetPassword`, {
+      const res = await fetch(`${BASE_URL}/user/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -105,7 +105,7 @@ export default class AuthAPI {
         throw new Error("No refresh token available");
       }
 
-      const res = await fetch(`${BASE_URL}/user/refreshToken`, {
+      const res = await fetch(`${BASE_URL}/user/auth/refreshToken`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

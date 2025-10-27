@@ -3,7 +3,7 @@ import {
   taskUpdateSchema,
 } from '../schema/taskValidationSchema.js'
 
-export default class toDoValidations {
+export default class TaskValidation {
   validateRequest = async (req, res, next) => {
     try {
       await taskCreateSchema.validate(req.body, {
@@ -17,6 +17,7 @@ export default class toDoValidations {
         err.status = 400
         next(new Error(err.errors.join(', ')))
       }
+
       next(err)
     }
   }
@@ -34,6 +35,7 @@ export default class toDoValidations {
         err.status = 400
         next(new Error(err.errors.join(', ')))
       }
+
       next(err)
     }
   }

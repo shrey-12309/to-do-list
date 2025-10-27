@@ -3,19 +3,31 @@ import { wait, showAlert } from "../toast.js";
 
 const api = new AuthAPI();
 const accessToken = localStorage.getItem("accessToken");
-
-if (accessToken) {
-  window.location.href = "/";
-}
-
 const otpBox = document.querySelector(".otp-input");
-console.log(otpBox);
 const verifyBtn = document.querySelector(".verify-btn");
-console.log(verifyBtn);
 const resendBtn = document.querySelector(".resend-btn");
 const email = localStorage.getItem("email");
 
-verifyBtn.addEventListener("click", async (e) => {
+// if (accessToken) {
+//   window.location.href = "/";
+// }
+
+verifyBtn.addEventListener("click", verifyOtp);
+resendBtn.addEventListener("click", resendOtp);
+window.onload(() => {
+  console.log("reset page m h");
+});
+
+async function resendOtp() {
+  try {
+    await api.sendOtp(email);
+    showAlert("OTP sent successfully", "success");
+  } catch (err) {
+    showAlert(err.message, "error");
+  }
+}
+
+async function verifyOtp() {
   try {
     const otp = otpBox.value.trim();
 
@@ -28,12 +40,11 @@ verifyBtn.addEventListener("click", async (e) => {
       showAlert("User not found! Please register to continue!", "error");
       await wait(3000);
 
-      window.location.href = "/src/pages/register";
+      window.location.href = "/pages/register";
       return;
     }
 
-    await api.verifyOtp(email, otp);
-    console.log("ok");
+    const data = await api.verifyOtp(email, otp);
 
     const urlParams = new URLSearchParams(window.location.search);
     const type = urlParams.get("type");
@@ -49,13 +60,4 @@ verifyBtn.addEventListener("click", async (e) => {
   } catch (err) {
     showAlert(err.message, "error");
   }
-});
-
-resendBtn.addEventListener("click", async () => {
-  try {
-    await api.sendOTP(email);
-    showAlert("OTP sent successfully", "success");
-  } catch (err) {
-    showAlert(err.message, "error");
-  }
-});
+}
