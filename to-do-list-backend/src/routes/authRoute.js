@@ -11,7 +11,8 @@ const validationInstance = new UserValidation()
 const storage = multer.diskStorage({
   destination: 'uploads/',
   filename: function (req, file, cb) {
-    cb(null, file.originalname)
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+    cb(null, file.fieldname + '-' + uniqueSuffix)
   },
 })
 const upload = multer({ storage })
@@ -28,6 +29,7 @@ userRouter.post('/send-otp', userInstance.sendOtp)
 userRouter.post('/verify-otp', userInstance.verifyOtp)
 userRouter.post(
   '/update-profile',
+  verifyToken,
   upload.single('avatar'),
   userInstance.updateProfile
 )

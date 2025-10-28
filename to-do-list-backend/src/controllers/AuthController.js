@@ -213,15 +213,18 @@ export default class UserController {
 
   updateProfile = async (req, res, next) => {
     try {
-      const { email } = req.body
-      const user = await userModel.findOne({ email })
+      const userId = req.user
+      console.log('this is userID in the updateProfile', userId)
+
+      const user = await userModel.findById(userId)
 
       if (!user) {
         res.status(404)
-        return next(new Error(`no user found!`))
+        return next(new Error('User not found'))
       }
 
       const profileImage = req.file ? req.file.filename : null
+      console.log(profileImage)
 
       if (profileImage) {
         user.avatar = profileImage
@@ -234,6 +237,7 @@ export default class UserController {
       next(err)
     }
   }
+
   fetchUserDetail = async (req, res, next) => {
     try {
       const userId = req.user

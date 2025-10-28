@@ -16,7 +16,7 @@ const uri = URI
 connectToMongoDB(uri)
 app.use(cors())
 app.use(express.json())
-app.use(express.static('public'))
+app.use('/uploads', express.static('uploads'))
 app.use(loggerMiddleware)
 
 app.use('/user/auth', userRouter)

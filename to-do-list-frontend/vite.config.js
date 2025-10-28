@@ -12,6 +12,7 @@ export default {
         otp: resolve(__dirname, "src/pages/otp.html"),
         resetPassword: resolve(__dirname, "src/pages/registerPassword.html"),
         profile: resolve(__dirname, "src/pages/profile.html"),
+        dashboard: resolve(__dirname, "src/pages/dashboard.html"),
       },
     },
   },

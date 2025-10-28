@@ -4,12 +4,12 @@ function showAlert(message, type = "success") {
   let backgroundColor = "White";
 
   if (type === "success") {
-    backgroundColor = "bg-success";
+    backgroundColor = "#e6ccb2";
   } else {
-    backgroundColor = "bg-danger";
+    backgroundColor = "#5e503f";
   }
 
-  toast.className = `toast align-items-center text-white border-0 show fade ${backgroundColor}`;
+  toast.className = `toast align-items-center text-black border-0 show fade ${backgroundColor}`;
 
   toast.innerHTML = `
     <div class="d-flex">
