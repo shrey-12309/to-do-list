@@ -52,6 +52,7 @@ export default class AuthAPI {
       });
 
       const data = await res.json();
+      sessionStorage.setItem("accessToken", data.accessToken);
 
       if (res.ok) {
         return;
@@ -82,9 +83,14 @@ export default class AuthAPI {
 
   resetPassword = async (email, password) => {
     try {
+      const token = sessionStorage.getItem("accessToken");
+
       const res = await fetch(`${BASE_URL}/user/auth/reset-password`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ email, password }),
       });
 
@@ -165,7 +171,7 @@ export default class AuthAPI {
       throw new Error(data.error || "Unable to load user details!");
     }
 
-    console.log("THIS IS OUTPUT in FETCH USER DETAIL", data);
+    console.log("output of fetch user detail", data);
     return data.userData;
   };
 }

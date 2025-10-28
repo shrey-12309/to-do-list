@@ -11,6 +11,7 @@ const email = localStorage.getItem("email");
 // if (accessToken) {
 //   window.location.href = "/";
 // }
+debugger;
 
 verifyBtn.addEventListener("click", verifyOtp);
 resendBtn.addEventListener("click", resendOtp);
@@ -53,9 +54,9 @@ async function verifyOtp() {
     await wait(3000);
 
     if (type === "login") {
-      window.location.href = "/pages/login";
+      window.location.href = "/src/pages/login.html";
     } else {
-      window.location.href = "/pages/resetPassword";
+      window.location.href = "/src/pages/resetPassword.html";
     }
   } catch (err) {
     showAlert(err.message, "error");

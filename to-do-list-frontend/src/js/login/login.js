@@ -10,7 +10,7 @@ const email = localStorage.getItem("email");
 const loginForm = document.querySelector(".login-form");
 const emailBox = document.querySelector("#email");
 const passwordBox = document.querySelector("#password");
-const resetPasswordLink = document.querySelector(".reset-password-link");
+const resetPasswordLink = document.querySelector(".reset-password-link button");
 
 if (accessToken) {
   window.location.href = "/";
@@ -20,15 +20,14 @@ loginForm.addEventListener("submit", userLogin);
 resetPasswordLink.addEventListener("click", resetPassword);
 
 async function resetPassword(e) {
+  console.log(e.target);
   try {
-    e.preventDefault();
-
     await api.sendOtp(email);
 
     showAlert("OTP sent successfully!");
     await wait(3000);
 
-    window.location.href = "/pages/otp?type=reset";
+    window.location.href = "/src/pages/otp.html?type=reset";
   } catch (err) {
     showAlert(err.message, "error");
   }
