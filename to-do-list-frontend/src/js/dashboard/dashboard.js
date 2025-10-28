@@ -1,5 +1,3 @@
-import "../scss/dashboard.scss";
-
 const signupBtn = document.querySelector(".signup");
 const loginBtn = document.querySelector(".login");
 

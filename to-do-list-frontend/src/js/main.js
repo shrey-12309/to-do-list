@@ -24,7 +24,7 @@ const tokenManager = new TokenManagerClass();
 const accessToken = localStorage.getItem("accessToken");
 
 if (!accessToken) {
-  window.location.href = `/src/pages/login`;
+  window.location.href = `/src/pages/dashboard`;
 }
 
 window.onload = async function () {
