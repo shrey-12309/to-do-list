@@ -3,7 +3,7 @@ import fetchAuth from "./interceptor.js";
 
 const BASE_URL = `${DOMAIN}:${PORT}`;
 
-export default class TaskAPI {
+export default class TaskApi {
   getTaskList = async () => {
     try {
       const res = await fetchAuth(`${BASE_URL}`);

@@ -4,7 +4,7 @@ import TokenManagerClass from "../../../utils/tokenManager.js";
 const TokenManager = new TokenManagerClass();
 const BASE_URL = `${DOMAIN}:${PORT}`;
 
-export default class AuthAPI {
+export default class AuthApi {
   registerUser = async (username, email, password) => {
     try {
       const res = await fetch(`${BASE_URL}/user/auth/register`, {

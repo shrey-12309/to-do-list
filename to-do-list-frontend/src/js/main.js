@@ -1,6 +1,6 @@
 import "../scss/styles.scss";
 import { wait, showAlert } from "./toast.js";
-import TaskAPI from "./api/TaskAPI.js";
+import TaskApi from "./api/TaskApi.js";
 import TokenManagerClass from "../../utils/tokenManager.js";
 import {
   addBtn,
@@ -19,7 +19,7 @@ import {
   profileBtn,
 } from "./mainConstants.js";
 
-const api = new TaskAPI();
+const api = new TaskApi();
 const tokenManager = new TokenManagerClass();
 const accessToken = localStorage.getItem("accessToken");
 
