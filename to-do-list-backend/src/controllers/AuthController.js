@@ -179,7 +179,6 @@ export default class UserController {
       }
 
       const latestOTP = otpDoc.otp[otpDoc.otp.length - 1]
-
       const now = Date.now()
       const otpCreated = new Date(otpDoc.updatedAt).getTime()
       const diff = (now - otpCreated) / 1000
